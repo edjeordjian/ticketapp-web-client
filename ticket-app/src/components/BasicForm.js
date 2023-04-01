@@ -1,18 +1,14 @@
 /* eslint-disable require-jsdoc */
-import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import {createTheme, ThemeProvider} from '@mui/material/styles';
+import * as React from "react";
+import Button from "@mui/material/Button";
+import CssBaseline from "@mui/material/CssBaseline";
+import TextField from "@mui/material/TextField";
+import Link from "@mui/material/Link";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 // eslint-disable-next-line require-jsdoc
 function Copyright(props) {
@@ -23,12 +19,12 @@ function Copyright(props) {
       align="center"
       {...props}
     >
-      {'Copyright © '}
+      {"Copyright © "}
       <Link color="inherit" href="https://mui.com/">
         TicketApp
-      </Link>{' '}
+      </Link>{" "}
       {new Date().getFullYear()}
-      {'.'}
+      {"."}
     </Typography>
   );
 }
@@ -40,8 +36,8 @@ export default function BasicForm() {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log({
-      email: data.get('email'),
-      password: data.get('password'),
+      email: data.get("email"),
+      password: data.get("password"),
     });
   };
 
@@ -52,8 +48,8 @@ export default function BasicForm() {
         <Box
           sx={{
             marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           <Typography component="h1" variant="h5">
@@ -63,13 +59,18 @@ export default function BasicForm() {
             component="form"
             noValidate
             onSubmit={handleSubmit}
-            sx={{mt: 5}}
+            sx={{ mt: 5 }}
           >
             <Typography component="h1" variant="h5">
               General
             </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
+            <Grid
+              container
+              direction="row"
+              justifyContent="space-between"
+              alignItems="stretch"
+            >
+              <Grid item xs={6}>
                 <TextField
                   name="description"
                   required
@@ -80,75 +81,68 @@ export default function BasicForm() {
                   label="Descripcion"
                 />
               </Grid>
-              <Box
-                sx={{
-                  marginTop: 8,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'baseline',
-                }}
-              >
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    required
-                    fullWidth
-                    id="name"
-                    label="Nombre"
-                    name="name"
-                  />
+              <Grid md={4} spacing={2}>
+                <Grid container direction="column">
+                  <Grid item>
+                    <TextField
+                      required
+                      fullWidth
+                      id="name"
+                      label="Nombre"
+                      name="name"
+                    />
+                  </Grid>
+                  <Grid item sx={{ mt: 2 }}>
+                    <TextField
+                      required
+                      fullWidth
+                      id="quantity"
+                      label="Cantidad de entradas"
+                      name="quantity"
+                    />
+                  </Grid>
                 </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    required
-                    fullWidth
-                    id="email"
-                    label="Email Address"
-                    name="email"
-                    autoComplete="email"
-                  />
-                </Grid>
-              </Box>
-              {/* <Grid item xs={12}>
+              </Grid>
+            </Grid>
+            <Grid
+              container
+              direction="row"
+              justifyContent="space-between"
+              alignItems="stretch"
+              sx={{ mt: 5 }}
+            >
+              <Grid item xs={6}>
                 <TextField
+                  name="type"
                   required
                   fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="new-password"
+                  id="type"
+                  label="Tipo de evento"
                 />
               </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={
-                    <Checkbox value="allowExtraEmails" color="primary" />
-                  }
-                  label="I want to receive inspiration, /
-                  marketing promotions and updates via email."
-                />
+
+              <Grid md={4} spacing={2}>
+                <Grid item>
+                  <TextField
+                    required
+                    fullWidth
+                    id="date"
+                    label="Fecha"
+                    name="date"
+                  />
+                </Grid>
               </Grid>
             </Grid>
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{mt: 3, mb: 2}}
+              sx={{ mt: 3, mb: 2 }}
             >
-              Sign Up
+              Crear evento
             </Button>
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link href="#" variant="body2">
-                  Already have an account? Sign in
-                </Link>
-              </Grid>
-            </Grid>
           </Box>
-        </Box> */}
-            </Grid>
-            <Copyright sx={{mt: 5}} />
-          </Box>
+          <Copyright sx={{ mt: 5 }} />
         </Box>
       </Container>
     </ThemeProvider>
