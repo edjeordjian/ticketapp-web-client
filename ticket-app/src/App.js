@@ -1,10 +1,22 @@
 import * as React from 'react';
-import {Button} from "@mui/material";
+import SignInSide from './components/SignIn';
+import './App.css';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route
+} from "react-router-dom";
+import BasicForm from './components/BasicForm';
+
 
 export default function MyApp() {
   return (
-    <div>
-      <Button variant="contained">Hello World</Button>
-    </div>
+    <Router>
+      <Routes>
+      <Route path="/" element={<SignInSide />} />
+      <Route path='/events' element={<BasicForm/>}/>
+      </Routes>
+    </Router>
+    
   );
 }
