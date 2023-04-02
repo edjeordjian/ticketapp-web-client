@@ -11,6 +11,8 @@ import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import UploadAndDisplayImage from "./UploadAndDisplayImage";
 import BasicDatePicker from "./BasicDatePicker";
+import { purple } from "@mui/material/colors";
+import InputTags from "./TagField";
 
 // eslint-disable-next-line require-jsdoc
 function Copyright(props) {
@@ -31,7 +33,16 @@ function Copyright(props) {
   );
 }
 
-const theme = createTheme();
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: purple[500],
+    },
+    secondary: {
+      main: "#f44336",
+    },
+  },
+});
 
 export default function BasicForm() {
   const handleSubmit = (event) => {
@@ -45,7 +56,7 @@ export default function BasicForm() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Container component="main">
+      <Container component="main" sx={{ bgcolor: "#eeeeee" }}>
         <CssBaseline />
         <Box
           sx={{
@@ -57,6 +68,7 @@ export default function BasicForm() {
           <Typography component="h1" variant="h5">
             Nuevo evento
           </Typography>
+          <UploadAndDisplayImage></UploadAndDisplayImage>
           <Box
             component="form"
             noValidate
@@ -96,6 +108,7 @@ export default function BasicForm() {
                   </Grid>
                   <Grid item sx={{ mt: 2 }}>
                     <TextField
+                    type="number"
                       required
                       fullWidth
                       id="quantity"
@@ -113,23 +126,21 @@ export default function BasicForm() {
               alignItems="stretch"
               sx={{ mt: 5 }}
             >
+              
               <Grid item xs={6}>
-                <TextField
-                  name="type"
-                  required
-                  fullWidth
-                  id="type"
-                  label="Tipo de evento"
-                />
+                <InputTags></InputTags>
               </Grid>
 
               <Grid md={4} spacing={2}>
                 <Grid item>
-                 <BasicDatePicker></BasicDatePicker>
+                  <BasicDatePicker></BasicDatePicker>
                 </Grid>
               </Grid>
-              <UploadAndDisplayImage></UploadAndDisplayImage>
             </Grid>
+            <Typography component="h1" variant="h5"  sx={{ mt: 5 }}>
+                Galería
+              </Typography>
+              <UploadAndDisplayImage></UploadAndDisplayImage>
             <Button
               type="submit"
               fullWidth
