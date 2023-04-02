@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import IconButton from "@mui/material/IconButton";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
-const UploadAndDisplayImage = () => {
+const UploadAndDisplayImage = (props) => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   return (
@@ -10,7 +10,7 @@ const UploadAndDisplayImage = () => {
         <div>
           <img
             alt="not found"
-            width={"250px"}
+            width={props.size}
             src={URL.createObjectURL(selectedImage)}
           />
           <br />

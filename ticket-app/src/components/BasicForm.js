@@ -68,7 +68,7 @@ export default function BasicForm() {
           <Typography component="h1" variant="h5">
             Nuevo evento
           </Typography>
-          <UploadAndDisplayImage></UploadAndDisplayImage>
+          <UploadAndDisplayImage size='1160px'></UploadAndDisplayImage>
           <Box
             component="form"
             noValidate
@@ -140,7 +140,7 @@ export default function BasicForm() {
             <Typography component="h1" variant="h5"  sx={{ mt: 5 }}>
                 Galería
               </Typography>
-              <UploadAndDisplayImage></UploadAndDisplayImage>
+              <UploadAndDisplayImage size='500px'></UploadAndDisplayImage>
             <Button
               type="submit"
               fullWidth
