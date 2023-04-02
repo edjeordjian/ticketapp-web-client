@@ -68,7 +68,7 @@ export default function BasicForm() {
           <Typography component="h1" variant="h5">
             Nuevo evento
           </Typography>
-          <UploadAndDisplayImage size='1160px'></UploadAndDisplayImage>
+          <UploadAndDisplayImage size="1160em"></UploadAndDisplayImage>
           <Box
             component="form"
             noValidate
@@ -95,8 +95,8 @@ export default function BasicForm() {
                   label="Descripcion"
                 />
               </Grid>
-              <Grid md={4} spacing={2}>
-                <Grid container direction="column">
+              <Grid item md={4}>
+                <Grid container direction="column" spacing={2}>
                   <Grid item>
                     <TextField
                       required
@@ -108,7 +108,7 @@ export default function BasicForm() {
                   </Grid>
                   <Grid item sx={{ mt: 2 }}>
                     <TextField
-                    type="number"
+                      type="number"
                       required
                       fullWidth
                       id="quantity"
@@ -119,37 +119,36 @@ export default function BasicForm() {
                 </Grid>
               </Grid>
             </Grid>
-            <Grid
-              container
-              direction="row"
-              justifyContent="space-between"
-              alignItems="stretch"
-              sx={{ mt: 5 }}
-            >
-              
-              <Grid item xs={6}>
-                <InputTags></InputTags>
-              </Grid>
-
-              <Grid md={4} spacing={2}>
-                <Grid item>
-                  <BasicDatePicker></BasicDatePicker>
-                </Grid>
-              </Grid>
-            </Grid>
-            <Typography component="h1" variant="h5"  sx={{ mt: 5 }}>
-                Galería
-              </Typography>
-              <UploadAndDisplayImage size='500px'></UploadAndDisplayImage>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Crear evento
-            </Button>
           </Box>
+          <Grid
+            container
+            direction="row"
+            justifyContent="space-between"
+            alignItems="stretch"
+            sx={{ mt: 5 }}
+            spacing={2}
+          >
+            <Grid item  md={4}>
+              <InputTags></InputTags>
+            </Grid>
+            <Grid item md={4}>
+              <BasicDatePicker></BasicDatePicker>
+            </Grid>
+            
+          </Grid>
+          <Typography component="h1" variant="h5" sx={{ mt: 5 }}>
+            Galería
+          </Typography>
+          <UploadAndDisplayImage size="200px"></UploadAndDisplayImage>
+
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+          >
+            Crear evento
+          </Button>
           <Copyright sx={{ mt: 5 }} />
         </Box>
       </Container>
