@@ -1,2 +1,8 @@
 node_modules
+
 ticket-app/.env
+
+/.idea
+
+# misc
+.DS_Store
