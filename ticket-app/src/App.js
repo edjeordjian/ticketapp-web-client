@@ -1,4 +1,4 @@
-import * as React from 'react';
+ import * as React from 'react';
 import SignInSide from './components/SignIn';
 import './App.css';
 import {
@@ -7,6 +7,7 @@ import {
   Route
 } from "react-router-dom";
 import BasicForm from './components/BasicForm';
+
 
 
 export default function MyApp() {
@@ -19,4 +20,4 @@ export default function MyApp() {
     </Router>
     
   );
-}
+} 

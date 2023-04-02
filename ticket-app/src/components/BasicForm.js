@@ -9,6 +9,8 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import UploadAndDisplayImage from "./UploadAndDisplayImage";
+import BasicDatePicker from "./BasicDatePicker";
 
 // eslint-disable-next-line require-jsdoc
 function Copyright(props) {
@@ -123,15 +125,10 @@ export default function BasicForm() {
 
               <Grid md={4} spacing={2}>
                 <Grid item>
-                  <TextField
-                    required
-                    fullWidth
-                    id="date"
-                    label="Fecha"
-                    name="date"
-                  />
+                 <BasicDatePicker></BasicDatePicker>
                 </Grid>
               </Grid>
+              <UploadAndDisplayImage></UploadAndDisplayImage>
             </Grid>
             <Button
               type="submit"
