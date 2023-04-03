@@ -13,6 +13,12 @@ import UploadAndDisplayImage from "./UploadAndDisplayImage";
 import BasicDatePicker from "./BasicDatePicker";
 import { purple } from "@mui/material/colors";
 import InputTags from "./TagField";
+import {useState} from "react";
+
+
+import {BlankLine} from "./BlankLine";
+import 'react-quill/dist/quill.snow.css';
+import ReactQuill from "react-quill";
 
 // eslint-disable-next-line require-jsdoc
 function Copyright(props) {
@@ -45,13 +51,27 @@ const theme = createTheme({
 });
 
 export default function BasicForm() {
+  const [name, setName] = useState("");
+
+  const [richDescription, setRichDescription] = useState("");
+
+  const handleNameChange = (event) => {
+    setName(event.target.value);
+  }
+
+  const handleRichDescriptionChange = (html) => {
+    setRichDescription(html);
+  }
+
   const handleSubmit = (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+
+    const eventPayload = {
+      name: name,
+      richDescription: richDescription
+    };
+
+    console.log(eventPayload);
   };
 
   return (
@@ -59,22 +79,20 @@ export default function BasicForm() {
       <Container component="main" sx={{ bgcolor: "#eeeeee" }}>
         <CssBaseline />
         <Box
-          sx={{
-            marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-          }}
+            component="form"
+            noValidate
+            onSubmit={handleSubmit}
+            sx={{
+              marginTop: 8,
+              display: "flex",
+              flexDirection: "column",
+            }}
         >
           <Typography component="h1" variant="h5">
             Nuevo evento
           </Typography>
           <UploadAndDisplayImage size="1160em"></UploadAndDisplayImage>
-          <Box
-            component="form"
-            noValidate
-            onSubmit={handleSubmit}
-            sx={{ mt: 5 }}
-          >
+
             <Typography component="h1" variant="h5">
               General
             </Typography>
@@ -85,27 +103,29 @@ export default function BasicForm() {
               alignItems="stretch"
             >
               <Grid item xs={6}>
-                <TextField
-                  name="description"
-                  required
-                  fullWidth
-                  multiline
-                  rows={4}
-                  id="description"
-                  label="Descripcion"
-                />
+                <BlankLine/>
+
+                <ReactQuill value={richDescription}
+                            theme="snow"
+                            onChange={handleRichDescriptionChange}
+                            style={{ height: '200px' }}/>
               </Grid>
+
               <Grid item md={4}>
                 <Grid container direction="column" spacing={2}>
                   <Grid item>
+                    <BlankLine/>
+
                     <TextField
                       required
                       fullWidth
                       id="name"
                       label="Nombre"
                       name="name"
+                      onChange={handleNameChange}
                     />
                   </Grid>
+
                   <Grid item sx={{ mt: 2 }}>
                     <TextField
                       type="number"
@@ -119,7 +139,7 @@ export default function BasicForm() {
                 </Grid>
               </Grid>
             </Grid>
-          </Box>
+
           <Grid
             container
             direction="row"
