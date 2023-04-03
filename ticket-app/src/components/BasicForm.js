@@ -97,7 +97,7 @@ export default function BasicForm() {
   };
 
   useEffect( () => {
-    getTo(`${process.env.REACT_APP_BACK_HOST}${EVENT_TYPES_URL}`)
+    getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`)
         .then(res => {
           if (res.error !== undefined) {
             alert(res.error);
