@@ -59,7 +59,7 @@ export default function EventsListView(props){
                     <BasicBtn label={"Crear evento"} onClick={onCreateEventClicked}/>
                 </Box>
                 <Typography component="h1" style={styles.title}>
-                    Mis evento
+                    Mis eventos
                 </Typography>
                 <Box styles={styles.eventsContainer}>
                     {events.map((e, _) => {
