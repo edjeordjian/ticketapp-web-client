@@ -1,4 +1,3 @@
-/* eslint-disable require-jsdoc */
 import * as React from "react";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -18,9 +17,11 @@ import {useEffect, useState} from "react";
 import {BlankLine} from "./BlankLine";
 import 'react-quill/dist/quill.snow.css';
 import ReactQuill from "react-quill";
-import {getTo} from "../services/helpers/RequestHandler";
-import {EVENT_TYPES_URL} from "../constants/URLs";
+import {getTo, postTo} from "../services/helpers/RequestHandler";
+import {EVENT_TYPES_URL, EVENT_URL} from "../constants/URLs";
 import {getKeys} from "../services/helpers/JsonHelpers";
+import BasicTimePicker from "./BasicTimePicker";
+import {CREATE_EVENT_ERR_LBL, CREATED_EVENT_LBL} from "../constants/EventConstants";
 
 // eslint-disable-next-line require-jsdoc
 function Copyright(props) {
@@ -65,6 +66,12 @@ export default function BasicForm() {
 
   const [loading, setLoading] = useState(true);
 
+  const [selectedDate, setSelectedDate] = useState("");
+
+  const [selectedTime, setSelectedTime] = useState("");
+
+  const [address, setAddress] = useState("");
+
   const handleNameChange = (event) => {
     setName(event.target.value);
   }
@@ -81,19 +88,50 @@ export default function BasicForm() {
     setTypes(value);
   }
 
+  const handleSelectedDate = (value) => {
+    setSelectedDate(value);
+  }
+
+  const handleSelectedTime = (value) => {
+    setSelectedTime(value);
+  }
+
+  const handleAddressChange = (event) => {
+    setAddress(event.target.value);
+  }
+
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    const type_ids = getKeys(types, selectableTypes);
+    const typeIds = getKeys(types, selectableTypes);
 
     const eventPayload = {
+      ownerId: "1",
+
       name: name,
-      richDescription: richDescription,
+
+      description: richDescription,
+
       capacity: capacity,
-      types: type_ids
+
+      types: typeIds,
+
+      address: address,
+
+      date: selectedDate.format('YYYY-MM-DD'),
+
+      time: selectedTime.format("HH:MM")
     };
 
-    console.log(eventPayload);
+    postTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}`,
+           eventPayload)
+        .then(res => {
+             if (res.error) {
+               alert(res.error);
+             } else {
+               alert(CREATED_EVENT_LBL);
+             }
+        });
   };
 
   useEffect( () => {
@@ -185,7 +223,6 @@ export default function BasicForm() {
             spacing={2}
           >
             <Grid item  md={4}>
-
               {loading ? (
                   <p></p>
               ) : (
@@ -193,10 +230,31 @@ export default function BasicForm() {
                              selectableTypes={selectableTypes}> </InputTags>
               )}
             </Grid>
+
             <Grid item md={4}>
-              <BasicDatePicker></BasicDatePicker>
+              <BasicDatePicker setSelectedDate={handleSelectedDate}/>
+
+              <BlankLine/>
+
+              <BasicTimePicker setSelectedTime={handleSelectedTime}/>
             </Grid>
-            
+            </Grid>
+
+          <BlankLine/>
+
+          <Grid item  md={2}>
+            <TextField
+                required
+                fullWidth
+                id="address"
+                label="Dirección"
+                name="address"
+                onChange={handleAddressChange}
+                style={{
+                  width: '20%'
+                }}
+            />
+
           </Grid>
           <Typography component="h1" variant="h5" sx={{ mt: 5 }}>
             Galería
