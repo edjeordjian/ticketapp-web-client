@@ -31,28 +31,20 @@ function getStyles(name, personName, theme) {
     };
 }
 
-export default function TagField() {
+export default function TagField(props) {
     const theme = useTheme();
 
     const [personName, setPersonName] = React.useState([]);
 
-    const [types, setTypes] = React.useState([]);
-
-    useEffect( () => {
-        getTo(`${process.env.REACT_APP_BACK_HOST}${EVENT_TYPES_URL}`)
-            .then(res => {
-                if (res.error !== undefined) {
-                    alert(res.error);
-                } else {
-                    setTypes(res.event_types);
-                }
-            })
-    }, [] );
+    const [types, setTypes] = React.useState(props.selectableTypes);
 
     const handleChange = (event) => {
         const {
             target: { value },
         } = event;
+
+        props.onTypesChange(event.target.value);
+
         setPersonName(
             // On autofill we get a stringified value.
             typeof value === 'string' ? value.split(',') : value,

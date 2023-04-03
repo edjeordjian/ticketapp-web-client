@@ -6,3 +6,5 @@ ticket-app/.env
 
 # misc
 .DS_Store
+
+package-lock.json

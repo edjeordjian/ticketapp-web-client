@@ -13,12 +13,14 @@ import UploadAndDisplayImage from "./UploadAndDisplayImage";
 import BasicDatePicker from "./BasicDatePicker";
 import { purple } from "@mui/material/colors";
 import InputTags from "./TagField";
-import {useState} from "react";
-
+import {useEffect, useState} from "react";
 
 import {BlankLine} from "./BlankLine";
 import 'react-quill/dist/quill.snow.css';
 import ReactQuill from "react-quill";
+import {getTo} from "../services/helpers/RequestHandler";
+import {EVENT_TYPES_URL} from "../constants/URLs";
+import {getKeys} from "../services/helpers/JsonHelpers";
 
 // eslint-disable-next-line require-jsdoc
 function Copyright(props) {
@@ -55,6 +57,14 @@ export default function BasicForm() {
 
   const [richDescription, setRichDescription] = useState("");
 
+  const [capacity, setCapacity] = useState("");
+
+  const [types, setTypes] = useState([]);
+
+  const [selectableTypes, setSelectableTypes] = React.useState([]);
+
+  const [loading, setLoading] = useState(true);
+
   const handleNameChange = (event) => {
     setName(event.target.value);
   }
@@ -63,16 +73,41 @@ export default function BasicForm() {
     setRichDescription(html);
   }
 
+  const handleCapacityChange = (event) => {
+    setCapacity(event.target.value);
+  }
+
+  const handleTypesChange = (value) => {
+    setTypes(value);
+  }
+
   const handleSubmit = (event) => {
     event.preventDefault();
 
+    const type_ids = getKeys(types, selectableTypes);
+
     const eventPayload = {
       name: name,
-      richDescription: richDescription
+      richDescription: richDescription,
+      capacity: capacity,
+      types: type_ids
     };
 
     console.log(eventPayload);
   };
+
+  useEffect( () => {
+    getTo(`${process.env.REACT_APP_BACK_HOST}${EVENT_TYPES_URL}`)
+        .then(res => {
+          if (res.error !== undefined) {
+            alert(res.error);
+          } else {
+            setSelectableTypes(res.event_types);
+          }
+
+          setLoading(false);
+        })
+  }, [] );
 
   return (
     <ThemeProvider theme={theme}>
@@ -134,6 +169,7 @@ export default function BasicForm() {
                       id="quantity"
                       label="Cantidad de entradas"
                       name="quantity"
+                      onChange={handleCapacityChange}
                     />
                   </Grid>
                 </Grid>
@@ -149,7 +185,13 @@ export default function BasicForm() {
             spacing={2}
           >
             <Grid item  md={4}>
-              <InputTags></InputTags>
+
+              {loading ? (
+                  <p></p>
+              ) : (
+                  <InputTags onTypesChange={handleTypesChange}
+                             selectableTypes={selectableTypes}> </InputTags>
+              )}
             </Grid>
             <Grid item md={4}>
               <BasicDatePicker></BasicDatePicker>
