@@ -39,6 +39,8 @@ export default function TagField() {
     const [types, setTypes] = React.useState([]);
 
     useEffect( () => {
+        setTypes([]);
+        return
         getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`)
             .then(res => {
                 if (res.error !== undefined) {
