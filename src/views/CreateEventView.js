@@ -86,7 +86,7 @@ export default function CreateEventView() {
                 multiline
                 rows={4}
                 id="description"
-                label="Descripcion"
+                label="Descripción"
               />
             </Grid>
             <Grid item md={4}>
