@@ -120,7 +120,9 @@ export default function BasicForm() {
 
       date: selectedDate.format('YYYY-MM-DD'),
 
-      time: selectedTime.format("HH:MM")
+      time: selectedTime.format("HH:mm"),
+
+      pictures: []
     };
 
     postTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}`,
