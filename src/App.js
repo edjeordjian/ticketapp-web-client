@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 import CreateEventView from './views/CreateEventView';
 import EventsListView from './views/EventsListView';
-import {EVENT_CREATE_PATH} from "./constants/URLs";
+import {EVENT_CREATE_PATH, EVENTS_PATH} from "./constants/URLs";
 
 
 export default function MyApp() {
@@ -16,8 +16,8 @@ export default function MyApp() {
     <Router>
       <Routes>
         <Route path="/" element={<SignInSide />} />
-        <Route path={EVENT_CREATE_PATH} element={<EventsListView/>}/>
-        <Route path='/events/create' element={<CreateEventView/>}/>
+        <Route path={EVENTS_PATH} element={<EventsListView/>}/>
+        <Route path={EVENT_CREATE_PATH} element={<CreateEventView/>}/>
       </Routes>
     </Router>
     

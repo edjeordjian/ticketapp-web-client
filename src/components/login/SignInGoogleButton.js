@@ -4,7 +4,7 @@ import {Button} from "@mui/material";
 
 import {useNavigate} from "react-router-dom";
 
-import {EVENT_CREATE_PATH} from "../../constants/URLs";
+import {EVENT_CREATE_PATH, EVENTS_PATH} from "../../constants/URLs";
 
 /*
 
@@ -39,7 +39,7 @@ const SignInWithGoogle = (props) => {
     const navigate = useNavigate();
 
     const handleLogin = () => {
-        navigate(EVENT_CREATE_PATH);
+        navigate(EVENTS_PATH);
     }
 
     /*  const {logIn} = useMainContext();
