@@ -1,3 +1,16 @@
+### General
+- No usemos alert, usemos Sweet Alert:
+```  
+  import SweetAlert2 from 'sweetalert2';
+
+          SweetAlert2.fire({
+            icon: 'info',
+            title: "Información"
+          }).then()
+```
+
+Más ejemplos: https://sweetalert2.github.io/
+
 ### React
 - Cambiar el estado causa un render. Por eso, para mantener el estado de sesión se usa local storage. Una alternativa es redux.
 

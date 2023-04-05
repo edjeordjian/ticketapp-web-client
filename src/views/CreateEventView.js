@@ -129,8 +129,6 @@ export default function CreateEventView() {
 
   return (
     <main style={{ backgroundColor: "#eeeeee", minHeight: "100vh" }}>
-      <DashboardDrawer />
-
       <Box style={createEventStyles.formContainer}>
         <Typography component="h1" style={createEventStyles.title}
           >Foto de Portada

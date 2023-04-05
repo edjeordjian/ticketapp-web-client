@@ -54,7 +54,6 @@ export default function EventsListView(props){
     }
     return (
         <>
-            <DashboardDrawer/>
             <Box style={{marginLeft: '220px', padding: '25px'}}>
                 <Box style={styles.btnContainer}>
                     <BasicBtn label={"Crear evento"} onClick={onCreateEventClicked}/>
