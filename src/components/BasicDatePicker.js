@@ -1,15 +1,23 @@
 import * as React from 'react';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { LocalizationProvider,
+    DatePicker } from '@mui/x-date-pickers';
+import moment from 'moment';
+import 'moment/locale/es';
 
-export default function BasicDatePicker() {
-  return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DemoContainer components={['DatePicker']}>
-        <DatePicker label="Elija una fecha" />
-      </DemoContainer>
-    </LocalizationProvider>
-  );
+
+export default function BasicDatePicker(props) {
+    moment.locale('es');
+
+    const handleDateChange = (givenDate) => {
+        props.setSelectedDate(givenDate);
+    }
+
+    return (
+        <LocalizationProvider dateAdapter={AdapterMoment}
+                              locale={moment.locale()}>
+            <DatePicker label="Elija una fecha"
+                        onChange={handleDateChange}/>
+        </LocalizationProvider>
+    );
 }

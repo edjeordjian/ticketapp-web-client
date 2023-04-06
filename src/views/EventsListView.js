@@ -5,6 +5,7 @@ import * as React from 'react';
 import BasicBtn from '../components/BasicBtn';
 import DashboardDrawer from '../components/DashboardDrawer';
 import { useNavigate } from 'react-router-dom';
+import {EVENT_CREATE_PATH} from "../constants/URLs";
 
 const styles = {
     title: {
@@ -49,18 +50,15 @@ export default function EventsListView(props){
     ]
 
     const onCreateEventClicked = (e) => {
-        navigate('/events/create');
+        navigate(EVENT_CREATE_PATH);
     }
     return (
         <>
-            <DashboardDrawer/>
             <Box style={{marginLeft: '220px', padding: '25px'}}>
                 <Box style={styles.btnContainer}>
                     <BasicBtn label={"Crear evento"} onClick={onCreateEventClicked}/>
                 </Box>
-                <Typography component="h1" style={styles.title}>
-                    Mis eventos
-                </Typography>
+
                 <Box styles={styles.eventsContainer}>
                     {events.map((e, _) => {
                         return displayProject(e)

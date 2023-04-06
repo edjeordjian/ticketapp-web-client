@@ -2,110 +2,107 @@ import React, {useEffect} from 'react'
 
 import {Button} from "@mui/material";
 
-import {useNavigate} from "react-router-dom";
-
-import {EVENT_CREATE_PATH} from "../../constants/URLs";
-
-/*
-
 import {useMainContext} from "../../services/contexts/MainContext";
 
-import {BACKEND_HOST} from "../../constants/generalConstants";
+import {auth} from "../../services/helpers/FirebaseService";
 
-import {SIGN_IN_URL} from "../../constants/URLs";
+import {useNavigate} from "react-router-dom";
 
-import {postTo} from "../../services/helpers/RequestService";
+import Typography from "@mui/material/Typography";
 
-import {EXPO_ID, ANDROID_ID, WEB_KEY} from "../../constants/dataConstants";
+import {AUTHENTICATION_ERR_LBL, GOOGLE_LOG_IN_ERR_LBL, GOOGLE_LOG_IN_LBL} from "../../constants/LogInConstants";
 
-import {GOOGLE_AUTH_ERR_LBL, GOOGLE_LOG_IN_ERR_LBL, GOOGLE_LOG_IN_LBL} from "../../constants/logIn/logInConstants";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
-import {getFirebaseUserData} from "../../services/helpers/FirebaseService"; */
+import SweetAlert2 from 'sweetalert2';
 
-const buttonStyles = {
-    position: "fixed",
-    top: "80%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    padding: "16px",
-    backgroundColor: "white",
-    color: "black",
-    borderRadius: "4px",
-    cursor: "pointer",
-    zIndex: 100
-};
+import {signInButtonStyle} from "../../styles/login/SignInButtonStyle";
+
+import {postTo} from "../../services/helpers/RequestHelper";
+
+import {EVENTS_PATH, SIGN_IN_URL} from "../../constants/URLs";
+
 
 const SignInWithGoogle = (props) => {
     const navigate = useNavigate();
 
-    const handleLogin = () => {
-        navigate(EVENT_CREATE_PATH);
-    }
+    const {logIn} = useMainContext();
 
-    /*  const {logIn} = useMainContext();
+    const handleSignIn = async () => {
+        const provider = new GoogleAuthProvider();
 
-    const [request, response, promptAsync] = Google.useAuthRequest({
-      androidClientId: ANDROID_ID
-    });
+        const firebaseResponse = await signInWithPopup(auth, provider)
+            .catch(async (err) => {
+                console.log(err.toString());
 
-    let handleSignInWithGoogle = async (googleAuth) => {
-      const userData = await getFirebaseUserData(googleAuth);
+                return err.toString();
+            } );
 
-      const requestBody = {
-        token: googleAuth.accessToken,
+        if (firebaseResponse.user === undefined) {
+            SweetAlert2.fire({
+                icon: "info",
+                title: GOOGLE_LOG_IN_ERR_LBL
+            }).then();
 
-        id: userData.id,
-
-        email: userData.email,
-
-        firstName: userData.given_name,
-
-        lastName: userData.family_name,
-
-        pictureUrl: userData.picture,
-
-        isOrganizer: true
-      };
-
-      postTo(`${BACKEND_HOST}${SIGN_IN_URL}`, requestBody).then((res) => {
-        if (res.error !== undefined) {
-          alert(res.error);
-
-          return
+            return;
         }
 
-        logIn({
-          token: googleAuth.accessToken,
+        const idToken = await auth.currentUser.getIdToken();
 
-          id: userData.id,
+        const user = firebaseResponse.user;
 
-          email: userData.email,
+        const uid = user.providerData[0].uid;
 
-          firstName: userData.given_name
-        });
-      });
+        const requestBody = {
+            id:  uid,
+
+            email: user.email,
+
+            idToken: idToken,
+
+            pictureUrl: user.photoURL,
+
+            firstName: user.displayName.substring(0, user.displayName.lastIndexOf(" ")),
+
+            lastName: user.displayName.substring(user.displayName.lastIndexOf(" ")),
+
+            isConsumer: true
+        };
+
+        const response = await postTo(`${process.env.REACT_APP_BACKEND_HOST}${SIGN_IN_URL}`,
+                                      requestBody);
+
+        if (response.error) {
+            SweetAlert2.fire({
+                icon: "info",
+                title: AUTHENTICATION_ERR_LBL
+            }).then();
+        } else {
+            const userData = {
+                id: uid,
+
+                name: user.displayName,
+
+                email: user.email,
+
+                photoURL: user.photoURL
+            };
+
+            logIn(userData, idToken);
+
+            navigate(EVENTS_PATH);
+        }
     };
 
-    useEffect(() => {
-      if (response?.type === 'success') {
-        const {authentication} = response;
-
-        handleSignInWithGoogle(authentication).catch(e => {
-            console.log(JSON.stringify(e));
-
-            alert(GOOGLE_AUTH_ERR_LBL);
-          });
-      }
-    }, [response]);  */
-
-  return (
-      <Button
-        icon='google'
-        onClick={handleLogin}
-        style={buttonStyles}
-        variant="contained">Ingresar
-      </Button>
-  );
+    return (
+            <Button
+                icon='google'
+                mode="contained"
+                onClick={handleSignIn}
+                style={signInButtonStyle}>
+                <Typography>{GOOGLE_LOG_IN_LBL}</Typography>
+            </Button>
+    );
 }
 
 export default SignInWithGoogle;
