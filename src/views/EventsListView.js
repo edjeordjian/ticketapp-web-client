@@ -58,9 +58,7 @@ export default function EventsListView(props){
                 <Box style={styles.btnContainer}>
                     <BasicBtn label={"Crear evento"} onClick={onCreateEventClicked}/>
                 </Box>
-                <Typography component="h1" style={styles.title}>
-                    Mis eventos
-                </Typography>
+
                 <Box styles={styles.eventsContainer}>
                     {events.map((e, _) => {
                         return displayProject(e)

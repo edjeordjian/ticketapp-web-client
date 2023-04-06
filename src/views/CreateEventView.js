@@ -23,6 +23,8 @@ import SweetAlert2 from 'sweetalert2';
 import {CREATED_EVENT_LBL, UPLOAD_IMAGE_ERR_LBL} from "../constants/EventConstants";
 import {useNavigate} from "react-router-dom";
 import {uploadFile} from "../services/helpers/CloudStorageService";
+import {Button} from "@mui/material";
+import {basicButtonStyle} from "../styles/events/BasicButtonStyle";
 
 export default function CreateEventView() {
   const [name, setName] = React.useState("");
@@ -52,6 +54,8 @@ export default function CreateEventView() {
   const [selectedThirdImage, setSelectedThirdImage] = React.useState(null);
 
   const [selectedFourthImage, setSelectedFourthImage] = React.useState(null);
+
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const navigate = useNavigate();
 
@@ -93,6 +97,8 @@ export default function CreateEventView() {
     const pictures = [];
 
     try {
+      setIsLoading(true);
+
       if (selectedWallpaper) {
         wallpaper = await uploadFile(selectedWallpaper, selectedWallpaper.name);
 
@@ -125,6 +131,8 @@ export default function CreateEventView() {
     } catch (err) {
       console.log(JSON.stringify(err));
 
+      setIsLoading(false);
+
       SweetAlert2.fire({
         icon: 'info',
         title: UPLOAD_IMAGE_ERR_LBL
@@ -154,6 +162,9 @@ export default function CreateEventView() {
     postTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}`,
         eventPayload)
         .then(res => {
+
+          setIsLoading(false);
+
           if (res.error) {
             SweetAlert2.fire({
               icon: 'error',
@@ -163,7 +174,9 @@ export default function CreateEventView() {
             SweetAlert2.fire({
               icon: 'info',
               title: CREATED_EVENT_LBL
-            }).then(res => navigate(EVENTS_PATH));
+            }).then(res => {
+              navigate(EVENTS_PATH);
+            });
           }
         });
   };
@@ -329,7 +342,15 @@ export default function CreateEventView() {
 
         <BlankLine/>
 
-        <BasicBtn label={"Crear evento"} onClick={handleSubmit}/>
+        <Button
+            type={"button"}
+            variant="contained"
+            onClick={handleSubmit}
+            style={basicButtonStyle}
+            loading={isLoading}
+            disabled={isLoading}>
+          <Typography>{isLoading ? 'Cargando...' : 'Crear evento'}</Typography>
+        </Button>
       </Box>
     </main>
   );
