@@ -32,10 +32,14 @@ const styles = {
 const UploadAndDisplayImage = (props) => {
   const [selectedImage, setSelectedImage] = useState(null);
 
-  const handleImageChange = (imageValue) => {
-      setSelectedImage(imageValue);
+  const handleImageChange = (imageFile) => {
+      if (imageFile.size > 10) {
+          console.log("a");
+      }
 
-      props.setSelectedImage(imageValue);
+      setSelectedImage(imageFile);
+
+      props.setSelectedImage(imageFile);
   }
 
   return (
