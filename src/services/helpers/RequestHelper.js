@@ -3,8 +3,9 @@ const JSON_HEADER = {
     'Access-Control-Allow-Origin': '*'
 }
 
-const postTo = (url,
-                body) => {
+const REQUEST_ERR_LBL = "No pudo realizarse la acción solicitada";
+
+const postTo = (url, body) => {
     return fetch(url, {
             method: "POST",
             headers: JSON_HEADER,
@@ -13,8 +14,10 @@ const postTo = (url,
     ).then(response =>
         response.json()
     ).catch(error => {
+        console.log(error);
+
         return {
-            error: error.toString()
+            error: REQUEST_ERR_LBL
         };
     } );
 };
@@ -27,8 +30,10 @@ const getTo = (url) => {
     ).then(response =>
         response.json()
     ).catch(error => {
+        console.log(error);
+
         return {
-            error: error.toString()
+            error: REQUEST_ERR_LBL
         };
     } );
 };
