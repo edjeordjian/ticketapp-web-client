@@ -6,8 +6,6 @@ import {useMainContext} from "../services/contexts/MainContext";
 
 
 export default function DashboardDrawer() {
-    const text = "Eventos";
-
     const [optionSelected, setOptionSelected] = React.useState(true);
 
     const navigate = useNavigate();
@@ -37,13 +35,13 @@ export default function DashboardDrawer() {
             <Toolbar/>
             <Divider/>
             <List>
-                <ListItem button key={text}
+                <ListItem button key={"Eventos"}
                           style={{color: optionSelected ? "#6B7DE5" : "#252733"}}
                           className="dashboard-item">
                     <ListItemText primary={"Eventos"} onClick={() => navigate(EVENTS_PATH)}/>
                 </ListItem>
 
-                <ListItem button key={text}
+                <ListItem button key={"Salir"}
                           style={{color: optionSelected ? "#6B7DE5" : "#252733"}}
                           className="dashboard-item">
                     <ListItemText primary={"Salir"} onClick={() => handleLogOut()}/>

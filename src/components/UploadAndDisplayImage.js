@@ -10,7 +10,6 @@ function UploadFileBtn(props) {
       aria-label="upload picture"
       component="label"
       onChange={(event) => {
-        console.log(event.target.files[0]);
         props.setSelectedImage(event.target.files[0]);
       }}
     >
@@ -32,6 +31,12 @@ const styles = {
 
 const UploadAndDisplayImage = (props) => {
   const [selectedImage, setSelectedImage] = useState(null);
+
+  const handleImageChange = (imageValue) => {
+      setSelectedImage(imageValue);
+
+      props.setSelectedImage(imageValue);
+  }
 
   return (
     <div>
@@ -62,7 +67,17 @@ const UploadAndDisplayImage = (props) => {
             alignItems: 'center'
           }
           }>
-          <UploadFileBtn setSelectedImage={setSelectedImage}/>
+            <IconButton
+                color="primary"
+                aria-label="upload picture"
+                component="label"
+                onChange={(event) => {
+                    handleImageChange(event.target.files[0]);
+                }}
+            >
+                <input hidden accept="image/*" type="file" />
+                <PhotoCamera />
+            </IconButton>
         </Box>
         }
 

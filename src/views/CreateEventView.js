@@ -20,8 +20,9 @@ import {createEventStyle as createEventStyles} from "../styles/events/CreateEven
 import BasicBtn from "../components/BasicBtn";
 import SweetAlert2 from 'sweetalert2';
 
-import {CREATED_EVENT_LBL} from "../constants/EventConstants";
+import {CREATED_EVENT_LBL, UPLOAD_IMAGE_ERR_LBL} from "../constants/EventConstants";
 import {useNavigate} from "react-router-dom";
+import {uploadFile} from "../services/helpers/CloudStorageService";
 
 export default function CreateEventView() {
   const [name, setName] = React.useState("");
@@ -36,11 +37,21 @@ export default function CreateEventView() {
 
   const [loading, setLoading] = React.useState(true);
 
-  const [selectedDate, setSelectedDate] = React.useState("");
+  const [selectedDate, setSelectedDate] = React.useState(null);
 
-  const [selectedTime, setSelectedTime] = React.useState("");
+  const [selectedTime, setSelectedTime] = React.useState(null);
 
   const [address, setAddress] = React.useState("");
+
+  const [selectedWallpaper, setSelectedWallpaper] = React.useState(null);
+
+  const [selectedFirstImage, setSelectedFirstImage] = React.useState(null);
+
+  const [selectedSecondImage, setSelectedSecondImage] = React.useState(null);
+
+  const [selectedThirdImage, setSelectedThirdImage] = React.useState(null);
+
+  const [selectedFourthImage, setSelectedFourthImage] = React.useState(null);
 
   const navigate = useNavigate();
 
@@ -72,10 +83,53 @@ export default function CreateEventView() {
     setAddress(event.target.value);
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async  (event) => {
     event.preventDefault();
 
     const typeIds = getKeys(types, selectableTypes);
+
+    let wallpaper, image1, image2, image3, image4;
+
+    const pictures = [];
+
+    try {
+      if (selectedWallpaper) {
+        wallpaper = await uploadFile(selectedWallpaper, selectedWallpaper.name);
+
+        pictures.push(wallpaper);
+      }
+
+      if (selectedFirstImage) {
+        image1 = await uploadFile(selectedFirstImage, selectedFirstImage.name)
+
+        pictures.push(image1);
+      }
+
+      if (selectedSecondImage) {
+        image2 = await uploadFile(selectedSecondImage, selectedSecondImage.name);
+
+        pictures.push(image2);
+      }
+
+      if (selectedThirdImage) {
+        image3 = await uploadFile(selectedThirdImage, selectedThirdImage.name);
+
+        pictures.push(image3);
+      }
+
+      if (selectedFourthImage) {
+        image4 = await uploadFile(selectedFourthImage, selectedFourthImage.name);
+
+        pictures.push(image4);
+      }
+    } catch (err) {
+      console.log(JSON.stringify(err));
+
+      SweetAlert2.fire({
+        icon: 'info',
+        title: UPLOAD_IMAGE_ERR_LBL
+      }).then();
+    }
 
     const eventPayload = {
       ownerId: "1",
@@ -90,11 +144,11 @@ export default function CreateEventView() {
 
       address: address,
 
-      date: selectedDate.format('YYYY-MM-DD'),
+      date: selectedDate !== null > 0 ? selectedDate.format('YYYY-MM-DD') : "",
 
-      time: selectedTime.format("HH:mm"),
+      time: selectedTime !== null > 0 ? selectedTime.format("HH:mm") : "",
 
-      pictures: []
+      pictures: pictures
     };
 
     postTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}`,
@@ -105,12 +159,12 @@ export default function CreateEventView() {
               icon: 'error',
               title: res.error
             }).then();
+          } else {
+            SweetAlert2.fire({
+              icon: 'info',
+              title: CREATED_EVENT_LBL
+            }).then(res => navigate(EVENTS_PATH));
           }
-
-          SweetAlert2.fire({
-            icon: 'info',
-            title: CREATED_EVENT_LBL
-          }).then(res => navigate(EVENTS_PATH))
         });
   };
 
@@ -134,8 +188,9 @@ export default function CreateEventView() {
           >Foto de Portada
         </Typography>
 
-        <UploadAndDisplayImage size="100%" height="400px" />
-
+        <UploadAndDisplayImage size="100%"
+                               height="400px"
+                               setSelectedImage={setSelectedWallpaper}/>
 
           <Grid
               container
@@ -143,8 +198,7 @@ export default function CreateEventView() {
               justifyContent="space-between"
               alignItems="stretch"
               sx={{ mt: 2 }}
-              spacing={2}
-          >
+              spacing={2}>
             <Grid item mt={2}>
               <TextField
                   style={{ background: "white" }}
@@ -207,7 +261,6 @@ export default function CreateEventView() {
 
             <BlankLine/>
 
-
             <BasicDatePicker setSelectedDate={handleSelectedDate}/>
 
             <BlankLine/>
@@ -240,6 +293,7 @@ export default function CreateEventView() {
             <UploadAndDisplayImage
                 size="300px"
                 height="300px"
+                setSelectedImage={setSelectedFirstImage}
             />
             </Grid>
 
@@ -247,6 +301,7 @@ export default function CreateEventView() {
             <UploadAndDisplayImage
                 size="300px"
                 height="300px"
+                setSelectedImage={setSelectedSecondImage}
             />
             </Grid>
 
@@ -254,6 +309,7 @@ export default function CreateEventView() {
             <UploadAndDisplayImage
                 size="300px"
                 height="300px"
+                setSelectedImage={setSelectedThirdImage}
             />
             </Grid>
 
@@ -261,6 +317,7 @@ export default function CreateEventView() {
             <UploadAndDisplayImage
                 size="300px"
                 height="300px"
+                setSelectedImage={setSelectedFourthImage}
             />
             </Grid>
 
