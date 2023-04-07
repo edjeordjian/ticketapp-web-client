@@ -5,7 +5,7 @@ const NotLoggedRouter = () => {
     return (
         <div>
             <Routes>
-                <Route path="/" element={<SignInSide />} />
+                <Route exact path="/" element={<SignInSide />} />
             </Routes>
         </div>
     );

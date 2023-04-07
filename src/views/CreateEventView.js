@@ -324,7 +324,9 @@ export default function CreateEventView() {
                             <p></p>
                         ) : (
                             <InputTags onTypesChange={handleTypesChange}
-                                       selectableTypes={selectableTypes}> </InputTags>
+                                       selectableTypes={selectableTypes}
+                                       selectedTypes={[]}>
+                            </InputTags>
                         )}
 
                         <BlankLine/>
@@ -434,6 +436,12 @@ export default function CreateEventView() {
                 </Grid>
 
                 <BlankLine number={2}/>
+
+                <TextField
+                    style={{background: "white"}}
+                    required
+                    fullWidth
+                    label="Agenda"/>
 
                 <FullCalendar
                     plugins={[timeGridPlugin, interactionPlugin]}
