@@ -29,6 +29,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from '@fullcalendar/timegrid';
 
 import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField} from "@mui/material";
+import {useMainContext} from "../services/contexts/MainContext";
 
 
 export default function CreateEventView() {
@@ -62,13 +63,19 @@ export default function CreateEventView() {
 
     const [isLoading, setIsLoading] = React.useState(false);
 
-
     const [events, setEvents] = React.useState([]);
 
     const [open, setOpen] = React.useState(false);
+
     const [newEventTitle, setNewEventTitle] = React.useState('');
+
     const [newEventStart, setNewEventStart] = React.useState(null);
+
     const [newEventEnd, setNewEventEnd] = React.useState(null);
+
+    const {getUserData} = useMainContext();
+
+    const navigate = useNavigate();
 
     const handleDateSelect = (selectInfo) => {
         setOpen(true);
@@ -86,7 +93,7 @@ export default function CreateEventView() {
     const handleAddEvent = () => {
         if (events.filter((event) => event.title === newEventTitle).length !== 0) {
             SweetAlert2.fire({
-                title: "Ya existe un espacio con ese nombre.",
+                title: "Ya existe un panel con ese nombre.",
                 icon: "error"
             }).then();
 
@@ -109,7 +116,7 @@ export default function CreateEventView() {
 
     const handleEventClick = (clickInfo) => {
         SweetAlert2.fire({
-            title: '¿Desea borrar el evento?',
+            title: '¿Desea borrar el panel?',
             icon: 'warning',
             showDenyButton: true,
             confirmButtonText: 'Sí',
@@ -140,8 +147,6 @@ export default function CreateEventView() {
 
         setEvents(newEvents);
     };
-
-    const navigate = useNavigate();
 
     const handleNameChange = (event) => {
         setName(event.target.value);
@@ -223,8 +228,10 @@ export default function CreateEventView() {
             }).then();
         }
 
+        const userData = getUserData();
+
         const eventPayload = {
-            ownerId: "1",
+            ownerId: userData.id,
 
             name: name,
 
@@ -240,7 +247,9 @@ export default function CreateEventView() {
 
             time: selectedTime !== null > 0 ? selectedTime.format("HH:mm") : "",
 
-            pictures: pictures
+            pictures: pictures,
+
+            agenda: events
         };
 
         postTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}`,
@@ -269,7 +278,10 @@ export default function CreateEventView() {
         getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`)
             .then(res => {
                 if (res.error !== undefined) {
-                    alert(res.error);
+                    SweetAlert2.fire({
+                        title: res.error,
+                        icon: "error"
+                    }).then();
                 } else {
                     setSelectableTypes(res.event_types);
                 }
@@ -281,8 +293,8 @@ export default function CreateEventView() {
     return (
         <main style={{backgroundColor: "#eeeeee", minHeight: "100vh"}}>
             <Box style={createEventStyles.formContainer}>
-                <Typography component="h1" style={createEventStyles.title}
-                >Foto de Portada
+                <Typography component="h1"
+                            style={createEventStyles.title}>Foto de Portada
                 </Typography>
 
                 <UploadAndDisplayImage size="100%"
@@ -441,15 +453,26 @@ export default function CreateEventView() {
                 />
 
                 <Dialog open={open} onClose={handleDialogClose}>
-                    <DialogTitle>Add Event</DialogTitle>
+                    <DialogTitle>Agregar panel
+                    </DialogTitle>
+
                     <DialogContent>
-                        <DialogContentText>Enter the event name:</DialogContentText>
-                        <TextField autoFocus margin="dense" label="Event name" fullWidth value={newEventTitle}
+                        <TextField autoFocus
+                                   margin="dense"
+                                   label="Nombre"
+                                   fullWidth
+                                   value={newEventTitle}
                                    onChange={e => setNewEventTitle(e.target.value)}/>
                     </DialogContent>
+
                     <DialogActions>
-                        <Button onClick={handleDialogClose} color="primary">Cancel</Button>
-                        <Button onClick={handleAddEvent} color="primary">Add</Button>
+                        <Button onClick={handleDialogClose}
+                                color="primary">Cancelar
+                        </Button>
+
+                        <Button onClick={handleAddEvent}
+                                color="primary">Agregar
+                        </Button>
                     </DialogActions>
                 </Dialog>
 
