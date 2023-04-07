@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import IconButton from "@mui/material/IconButton";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import { Box } from "@mui/system";
+import {getFileSizeAndWidth} from "../services/helpers/CloudStorageService";
+import {IMAGE_TOO_SMALL_ERR_LBL, MIN_HEIGHT, MIN_WIDTH} from "../constants/EventConstants";
+import SweetAlert2 from "sweetalert2";
 
 function UploadFileBtn(props) {
   return (
@@ -33,9 +36,20 @@ const UploadAndDisplayImage = (props) => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   const handleImageChange = (imageValue) => {
-      setSelectedImage(imageValue);
+      getFileSizeAndWidth(imageValue).then(({ width, height }) => {
+          if (width < MIN_WIDTH || height < MIN_HEIGHT) {
+              SweetAlert2.fire({
+                  title: IMAGE_TOO_SMALL_ERR_LBL,
+                  icon: "error"
+              }).then();
 
-      props.setSelectedImage(imageValue);
+              return null;
+          }
+
+          setSelectedImage(imageValue);
+
+          props.setSelectedImage(imageValue);
+      });
   }
 
   return (
@@ -51,8 +65,7 @@ const UploadAndDisplayImage = (props) => {
             src={URL.createObjectURL(selectedImage)}
           /> 
             <button onClick={() => setSelectedImage(null)}
-            style={styles.deleteBtn}>
-              Remove
+            style={styles.deleteBtn}>Quitar
             </button>
           </Box>
         : 

@@ -19,7 +19,7 @@ import {createEventStyle as createEventStyles} from "../styles/events/CreateEven
 import BasicBtn from "../components/BasicBtn";
 import SweetAlert2 from 'sweetalert2';
 
-import {CREATED_EVENT_LBL, UPLOAD_IMAGE_ERR_LBL} from "../constants/EventConstants";
+import {CREATED_EVENT_LBL, IMAGE_TOO_SMALL_ERR_LBL, UPLOAD_IMAGE_ERR_LBL} from "../constants/EventConstants";
 import {useNavigate} from "react-router-dom";
 import {uploadFile} from "../services/helpers/CloudStorageService";
 
@@ -191,11 +191,25 @@ export default function CreateEventView() {
             if (selectedWallpaper) {
                 wallpaper = await uploadFile(selectedWallpaper, selectedWallpaper.name);
 
+                if (! wallpaper) {
+                    return SweetAlert2.fire({
+                        title: IMAGE_TOO_SMALL_ERR_LBL,
+                        icon: "error"
+                    }).then()
+                }
+
                 pictures.push(wallpaper);
             }
 
             if (selectedFirstImage) {
                 image1 = await uploadFile(selectedFirstImage, selectedFirstImage.name)
+
+                if (! image1) {
+                    return SweetAlert2.fire({
+                        title: IMAGE_TOO_SMALL_ERR_LBL,
+                        icon: "error"
+                    }).then()
+                }
 
                 pictures.push(image1);
             }
@@ -203,17 +217,38 @@ export default function CreateEventView() {
             if (selectedSecondImage) {
                 image2 = await uploadFile(selectedSecondImage, selectedSecondImage.name);
 
+                if (! image2) {
+                    return SweetAlert2.fire({
+                        title: IMAGE_TOO_SMALL_ERR_LBL,
+                        icon: "error"
+                    }).then()
+                }
+
                 pictures.push(image2);
             }
 
             if (selectedThirdImage) {
                 image3 = await uploadFile(selectedThirdImage, selectedThirdImage.name);
 
+                if (! image3) {
+                    return SweetAlert2.fire({
+                        title: IMAGE_TOO_SMALL_ERR_LBL,
+                        icon: "error"
+                    }).then()
+                }
+
                 pictures.push(image3);
             }
 
             if (selectedFourthImage) {
                 image4 = await uploadFile(selectedFourthImage, selectedFourthImage.name);
+
+                if (! image4) {
+                    return SweetAlert2.fire({
+                        title: IMAGE_TOO_SMALL_ERR_LBL,
+                        icon: "error"
+                    }).then()
+                }
 
                 pictures.push(image4);
             }
@@ -243,9 +278,9 @@ export default function CreateEventView() {
 
             address: address,
 
-            date: selectedDate !== null > 0 ? selectedDate.format('YYYY-MM-DD') : "",
+            date: selectedDate !== null ? selectedDate.format('YYYY-MM-DD') : "",
 
-            time: selectedTime !== null > 0 ? selectedTime.format("HH:mm") : "",
+            time: selectedTime !== null ? selectedTime.format("HH:mm") : "",
 
             pictures: pictures,
 
@@ -346,6 +381,8 @@ export default function CreateEventView() {
                         >Acerca del evento
                         </Typography>
 
+                        <BlankLine/>
+
                         <ReactQuill value={richDescription}
                                     theme="snow"
                                     onChange={handleRichDescriptionChange}
@@ -382,7 +419,7 @@ export default function CreateEventView() {
                     <BlankLine/>
                 </Grid>
 
-                <BlankLine/>
+                <BlankLine number={4}/>
 
                 <BlankLine/>
 
@@ -390,8 +427,8 @@ export default function CreateEventView() {
 
                 <BlankLine/>
 
-                <Typography component="h2" style={createEventStyles.subTitle}
-                >Galería
+                <Typography component="h2"
+                            style={createEventStyles.subTitle}>Galería
                 </Typography>
 
                 <BlankLine/>
@@ -437,11 +474,9 @@ export default function CreateEventView() {
 
                 <BlankLine number={2}/>
 
-                <TextField
-                    style={{background: "white"}}
-                    required
-                    fullWidth
-                    label="Agenda"/>
+                <Typography component="h2"
+                            style={createEventStyles.subTitle}>Agenda
+                </Typography>
 
                 <FullCalendar
                     plugins={[timeGridPlugin, interactionPlugin]}
