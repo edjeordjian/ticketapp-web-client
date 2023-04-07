@@ -4,23 +4,7 @@ import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import { Box } from "@mui/system";
 
 const MIN_FILE_SIZE = 1024; // 1MB
-const MAX_FILE_SIZE = 5120; // 5MB
-
-function UploadFileBtn(props) {
-  return (
-    <IconButton
-      color="primary"
-      aria-label="upload picture"
-      component="label"
-      onChange={(event) => {
-        props.setSelectedImage(event.target.files[0]);
-      }}
-    >
-      <input hidden accept="image/*" type="file" />
-      <PhotoCamera />
-    </IconButton>
-  );
-}
+const MAX_FILE_SIZE = 10240; // 10MB
 
 const styles = {
   deleteBtn: {
@@ -38,18 +22,16 @@ const UploadAndDisplayImage = (props) => {
     if (props.scala === undefined) {
       scala = 1;
     }
-    console.log(imageFile.size / 1024);
-    console.log(imageFile.size / 1024 / scala);
-    console.log(imageFile.size / 1024 / scala);
     if (
       imageFile.size / 1024 / scala > MIN_FILE_SIZE &&
       imageFile.size / 1024 / scala < MAX_FILE_SIZE
     ) {
+      console.log(imageFile);
       setSelectedImage(imageFile);
       props.setSelectedImage(imageFile);
     } else {
       alert(
-        `El archivo no posee el tamaño correcto (Minimo 1 MB, Maximo 5 MB)`
+        `El archivo no posee el tamaño correcto (Minimo 1 MB, Maximo 10 MB)`
       );
     }
   };

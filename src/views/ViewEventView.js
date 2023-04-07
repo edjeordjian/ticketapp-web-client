@@ -29,7 +29,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField} from "@mui/material";
 import {useMainContext} from "../services/contexts/MainContext";
 
-//import ReactHtmlParser from 'react-html-parser';
+import ReactHtmlParser from 'react-html-parser';
 
 const ViewEventView = () => {
     const [name, setName] = React.useState("");
@@ -185,8 +185,8 @@ const ViewEventView = () => {
                         <Typography style={createEventStyles.subtitle}>Acerca del evento
                         </Typography>
 
-                        {/* <div>{ReactHtmlParser(richDescription)}
-                        </div> */}
+                        <div>{ReactHtmlParser(richDescription)}
+                        </div>
                     </Grid>
 
                     <Grid item md={2}>
@@ -231,7 +231,7 @@ const ViewEventView = () => {
 
                 <BlankLine/>
 
-                <Grid item md={10} item md={10}>
+                <Grid item md={10}>
                     <Grid container direction="row" spacing={2}>
                         <Box style={createEventStyles.galleryContainer}>
 

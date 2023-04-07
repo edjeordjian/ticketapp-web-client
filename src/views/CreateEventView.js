@@ -321,7 +321,9 @@ export default function CreateEventView() {
           height="400px"
           setSelectedImage={setSelectedWallpaper}
         />
-
+        <Typography variant="caption" display="block">
+          Resolución recomenda: 1920 x 1080
+        </Typography>
         <Grid
           container
           direction="row"
