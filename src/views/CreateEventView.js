@@ -376,7 +376,7 @@ export default function CreateEventView() {
                   fullWidth
                   id="name"
                   label="Nombre"
-                  name="name"
+                  value={name}
                   onChange={handleNameChange}/>
 
               <BlankLine/>

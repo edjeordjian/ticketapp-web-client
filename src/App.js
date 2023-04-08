@@ -33,6 +33,10 @@ const getUserData = () => {
   return JSON.parse( localStorage.getItem("user-data") );
 };
 
+const getUserId = () => {
+  return getUserData().id;
+}
+
 const DisplayApp = () => {
   const {isLoggedIn,
         checkLoggedIn} = useMainContext();
@@ -44,7 +48,8 @@ const DisplayApp = () => {
   return (
       <>
         {
-          (checkLoggedIn() && isLoggedIn) ? (
+          {/* (checkLoggedIn() && isLoggedIn) */}
+          (isLoggedIn) ? (
               <BrowserRouter>
                 <DashboardDrawer/>
                 <LoggedRouter/>
@@ -81,7 +86,9 @@ const App = () => {
           logIn: (userData, idToken) => logIn(userData,
                                               idToken,
                                               setIsLoggedIn),
-          getUserData
+          getUserData,
+
+          getUserId
         } );
       },
       [isLoggedIn, setIsLoggedIn]);
