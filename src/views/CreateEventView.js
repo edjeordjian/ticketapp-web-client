@@ -7,17 +7,26 @@ import BasicDatePicker from "../components/BasicDatePicker";
 import InputTags from "../components/TagField";
 import Copyright from "../components/Copyright";
 import DashboardDrawer from "../components/DashboardDrawer";
-import {getTo, postTo} from "../services/helpers/RequestHelper";
-import {EVENT_TYPES_URL, EVENT_URL, EVENTS_PATH} from "../constants/URLs";
+import { getTo, postTo } from "../services/helpers/RequestHelper";
+import { EVENT_TYPES_URL, EVENT_URL, EVENTS_PATH } from "../constants/URLs";
 
-import {BlankLine} from "../components/BlankLine";
-import 'react-quill/dist/quill.snow.css';
-import {getKeys} from "../services/helpers/JsonHelpers";
+import { BlankLine } from "../components/BlankLine";
+import "react-quill/dist/quill.snow.css";
+import { getKeys } from "../services/helpers/JsonHelpers";
 import BasicTimePicker from "../components/BasicTimePicker";
 import ReactQuill from "react-quill";
-import {createEventStyle as createEventStyles} from "../styles/events/CreateEventStyle";
-import BasicBtn from "../components/BasicBtn";
-import SweetAlert2 from 'sweetalert2';
+import { createEventStyle as createEventStyles } from "../styles/events/CreateEventStyle";
+import SweetAlert2 from "sweetalert2";
+
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  TextField,
+} from "@mui/material";
 
 import {CREATED_EVENT_LBL, IMAGE_TOO_SMALL_ERR_LBL, UPLOAD_IMAGE_ERR_LBL} from "../constants/EventConstants";
 import {useNavigate} from "react-router-dom";
@@ -28,54 +37,54 @@ import FullCalendar from '@fullcalendar/react';
 import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from '@fullcalendar/timegrid';
 
-import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField} from "@mui/material";
 import {useMainContext} from "../services/contexts/MainContext";
 
 
 export default function CreateEventView() {
-    const [name, setName] = React.useState("");
+  const [name, setName] = React.useState("");
 
-    const [richDescription, setRichDescription] = React.useState("");
+  const [richDescription, setRichDescription] = React.useState("");
 
-    const [capacity, setCapacity] = React.useState("");
+  const [capacity, setCapacity] = React.useState("");
 
-    const [types, setTypes] = React.useState([]);
+  const [types, setTypes] = React.useState([]);
 
-    const [selectableTypes, setSelectableTypes] = React.useState([]);
+  const [selectableTypes, setSelectableTypes] = React.useState([]);
 
-    const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(true);
 
-    const [selectedDate, setSelectedDate] = React.useState(null);
+  const [selectedDate, setSelectedDate] = React.useState(null);
 
-    const [selectedTime, setSelectedTime] = React.useState(null);
+  const [selectedTime, setSelectedTime] = React.useState(null);
 
-    const [address, setAddress] = React.useState("");
+  const [address, setAddress] = React.useState("");
 
-    const [selectedWallpaper, setSelectedWallpaper] = React.useState(null);
+  const [selectedWallpaper, setSelectedWallpaper] = React.useState(null);
 
-    const [selectedFirstImage, setSelectedFirstImage] = React.useState(null);
+  const [selectedFirstImage, setSelectedFirstImage] = React.useState(null);
 
-    const [selectedSecondImage, setSelectedSecondImage] = React.useState(null);
+  const [selectedSecondImage, setSelectedSecondImage] = React.useState(null);
 
-    const [selectedThirdImage, setSelectedThirdImage] = React.useState(null);
+  const [selectedThirdImage, setSelectedThirdImage] = React.useState(null);
 
-    const [selectedFourthImage, setSelectedFourthImage] = React.useState(null);
+  const [selectedFourthImage, setSelectedFourthImage] = React.useState(null);
 
-    const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
-    const [events, setEvents] = React.useState([]);
+  const [events, setEvents] = React.useState([]);
 
-    const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
 
-    const [newEventTitle, setNewEventTitle] = React.useState('');
+  const [newEventTitle, setNewEventTitle] = React.useState("");
 
-    const [newEventStart, setNewEventStart] = React.useState(null);
+  const [newEventStart, setNewEventStart] = React.useState(null);
 
-    const [newEventEnd, setNewEventEnd] = React.useState(null);
+  const [newEventEnd, setNewEventEnd] = React.useState(null);
 
-    const {getUserData} = useMainContext();
+  const { getUserData } = useMainContext();
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+
 
     const handleDateSelect = (selectInfo) => {
         setOpen(true);
@@ -135,7 +144,6 @@ export default function CreateEventView() {
         const index = events.findIndex((e) => e.title === event.title);
 
         const updatedEvent = {
-            ...event,
             title: event.title,
             start: event.start.toISOString(),
             end: event.end.toISOString()
@@ -148,48 +156,66 @@ export default function CreateEventView() {
         setEvents(newEvents);
     };
 
+    const handleEventResize = (eventResizeInfo) => {
+        const { event } = eventResizeInfo;
+
+        const index = events.findIndex((e) => e.title === event.title);
+
+        const updatedEvent = {
+            title: event.title,
+            start: event.start.toISOString(),
+            end: event.end.toISOString(),
+        };
+
+        const newEvents = [...events];
+
+        newEvents[index] = updatedEvent;
+
+        setEvents(newEvents);
+    };
+
     const handleNameChange = (event) => {
-        setName(event.target.value);
-    }
+    setName(event.target.value);
+  }
 
-    const handleRichDescriptionChange = (html) => {
-        setRichDescription(html);
-    }
+  const handleRichDescriptionChange = (html) => {
+    setRichDescription(html);
+  }
 
-    const handleCapacityChange = (event) => {
-        setCapacity(event.target.value);
-    }
+  const handleCapacityChange = (event) => {
+    setCapacity(event.target.value);
+  }
 
-    const handleTypesChange = (value) => {
-        setTypes(value);
-    }
+  const handleTypesChange = (value) => {
+    setTypes(value);
+  }
 
-    const handleSelectedDate = (value) => {
-        setSelectedDate(value);
-    }
+  const handleSelectedDate = (value) => {
+    setSelectedDate(value);
+  }
 
-    const handleSelectedTime = (value) => {
-        setSelectedTime(value);
-    }
+  const handleSelectedTime = (value) => {
+    setSelectedTime(value);
+  }
 
-    const handleAddressChange = (event) => {
-        setAddress(event.target.value);
-    }
+  const handleAddressChange = (event) => {
+    setAddress(event.target.value);
+  }
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
+  const handleSubmit = async  (event) => {
+    event.preventDefault();
 
-        const typeIds = getKeys(types, selectableTypes);
+    const typeIds = getKeys(types, selectableTypes);
 
-        let wallpaper, image1, image2, image3, image4;
+    let wallpaper, image1, image2, image3, image4;
 
-        const pictures = [];
+    const pictures = [];
 
-        try {
-            setIsLoading(true);
+    try {
+      setIsLoading(true);
 
-            if (selectedWallpaper) {
-                wallpaper = await uploadFile(selectedWallpaper, selectedWallpaper.name);
+      if (selectedWallpaper) {
+        wallpaper = await uploadFile(selectedWallpaper, selectedWallpaper.name);
 
                 if (! wallpaper) {
                     return SweetAlert2.fire({
@@ -201,8 +227,8 @@ export default function CreateEventView() {
                 pictures.push(wallpaper);
             }
 
-            if (selectedFirstImage) {
-                image1 = await uploadFile(selectedFirstImage, selectedFirstImage.name)
+      if (selectedFirstImage) {
+        image1 = await uploadFile(selectedFirstImage, selectedFirstImage.name)
 
                 if (! image1) {
                     return SweetAlert2.fire({
@@ -214,8 +240,8 @@ export default function CreateEventView() {
                 pictures.push(image1);
             }
 
-            if (selectedSecondImage) {
-                image2 = await uploadFile(selectedSecondImage, selectedSecondImage.name);
+      if (selectedSecondImage) {
+        image2 = await uploadFile(selectedSecondImage, selectedSecondImage.name);
 
                 if (! image2) {
                     return SweetAlert2.fire({
@@ -227,8 +253,8 @@ export default function CreateEventView() {
                 pictures.push(image2);
             }
 
-            if (selectedThirdImage) {
-                image3 = await uploadFile(selectedThirdImage, selectedThirdImage.name);
+      if (selectedThirdImage) {
+        image3 = await uploadFile(selectedThirdImage, selectedThirdImage.name);
 
                 if (! image3) {
                     return SweetAlert2.fire({
@@ -240,8 +266,8 @@ export default function CreateEventView() {
                 pictures.push(image3);
             }
 
-            if (selectedFourthImage) {
-                image4 = await uploadFile(selectedFourthImage, selectedFourthImage.name);
+      if (selectedFourthImage) {
+        image4 = await uploadFile(selectedFourthImage, selectedFourthImage.name);
 
                 if (! image4) {
                     return SweetAlert2.fire({
@@ -255,282 +281,282 @@ export default function CreateEventView() {
         } catch (err) {
             console.log(JSON.stringify(err));
 
-            setIsLoading(false);
+      setIsLoading(false);
 
-            SweetAlert2.fire({
-                icon: 'info',
-                title: UPLOAD_IMAGE_ERR_LBL
-            }).then();
-        }
+      SweetAlert2.fire({
+        icon: 'info',
+        title: UPLOAD_IMAGE_ERR_LBL
+      }).then();
+    }
 
-        const userData = getUserData();
+    const userData = getUserData();
 
-        const eventPayload = {
-            ownerId: userData.id,
+    const eventPayload = {
+      ownerId: userData.id,
 
-            name: name,
+      name: name,
 
-            description: richDescription,
+      description: richDescription,
 
-            capacity: capacity,
+      capacity: capacity,
 
-            types: typeIds,
+      types: typeIds,
 
-            address: address,
+      address: address,
 
             date: selectedDate !== null ? selectedDate.format('YYYY-MM-DD') : "",
 
             time: selectedTime !== null ? selectedTime.format("HH:mm") : "",
 
-            pictures: pictures,
+      pictures: pictures,
 
-            agenda: events
-        };
-
-        postTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}`,
-            eventPayload)
-            .then(res => {
-
-                setIsLoading(false);
-
-                if (res.error) {
-                    SweetAlert2.fire({
-                        icon: 'error',
-                        title: res.error
-                    }).then();
-                } else {
-                    SweetAlert2.fire({
-                        icon: 'info',
-                        title: CREATED_EVENT_LBL
-                    }).then(res => {
-                        navigate(EVENTS_PATH);
-                    });
-                }
-            });
+      agenda: events
     };
 
-    React.useEffect(() => {
-        getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`)
-            .then(res => {
-                if (res.error !== undefined) {
-                    SweetAlert2.fire({
-                        title: res.error,
-                        icon: "error"
-                    }).then();
-                } else {
-                    setSelectableTypes(res.event_types);
-                }
+      postTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}`,
+          eventPayload)
+          .then(res => {
 
-                setLoading(false);
-            })
-    }, []);
+              setIsLoading(false);
 
-    return (
-        <main style={{backgroundColor: "#eeeeee", minHeight: "100vh"}}>
-            <Box style={createEventStyles.formContainer}>
-                <Typography component="h1"
-                            style={createEventStyles.title}>Foto de Portada
-                </Typography>
+              if (res.error) {
+                  SweetAlert2.fire({
+                      icon: 'error',
+                      title: res.error
+                  }).then();
+              } else {
+                  SweetAlert2.fire({
+                      icon: 'info',
+                      title: CREATED_EVENT_LBL
+                  }).then(res => {
+                      navigate(EVENTS_PATH);
+                  });
+              }
+          });
+  };
 
-                <UploadAndDisplayImage size="100%"
-                                       height="400px"
-                                       setSelectedImage={setSelectedWallpaper}/>
+  React.useEffect( () => {
+    getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`)
+        .then(res => {
+          if (res.error !== undefined) {
+              SweetAlert2.fire({
+                  title: res.error,
+                  icon: "error"
+              }).then();
+          } else {
+            setSelectableTypes(res.event_types);
+          }
 
-                <Grid
-                    container
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="stretch"
-                    sx={{mt: 2}}
-                    spacing={2}>
-                    <Grid item mt={2}>
-                        <TextField
-                            style={{background: "white"}}
-                            required
-                            fullWidth
-                            id="name"
-                            label="Nombre"
-                            name="name"
-                            onChange={handleNameChange}/>
+          setLoading(false);
+        })
+  }, [] );
 
-                        <BlankLine/>
+  return (
+    <main style={{ backgroundColor: "#eeeeee", minHeight: "100vh" }}>
+      <Box style={createEventStyles.formContainer}>
+        <Typography component="h1" style={createEventStyles.title}
+          >Foto de Portada
+        </Typography>
 
-                        {loading ? (
-                            <p></p>
-                        ) : (
-                            <InputTags onTypesChange={handleTypesChange}
-                                       selectableTypes={selectableTypes}
-                                       selectedTypes={[]}>
-                            </InputTags>
-                        )}
+        <UploadAndDisplayImage size="100%"
+                               height="400px"
+                               setSelectedImage={setSelectedWallpaper}/>
 
-                        <BlankLine/>
+          <Grid
+              container
+              direction="row"
+              justifyContent="space-between"
+              alignItems="stretch"
+              sx={{ mt: 2 }}
+              spacing={2}>
+            <Grid item mt={2}>
+              <TextField
+                  style={{ background: "white" }}
+                  required
+                  fullWidth
+                  id="name"
+                  label="Nombre"
+                  name="name"
+                  onChange={handleNameChange}/>
 
-                        <TextField
-                            style={{background: "white"}}
-                            required
-                            fullWidth
-                            id="address"
-                            label="Dirección"
-                            name="address"
-                            onChange={handleAddressChange}/>
+              <BlankLine/>
 
-                        <BlankLine/>
+              {loading ? (
+                  <p></p>
+              ) : (
+                  <InputTags onTypesChange={handleTypesChange}
+                             selectableTypes={selectableTypes}
+                             selectedTypes={[]}> </InputTags>
+              )}
 
-                        <Typography style={createEventStyles.subtitle}
-                        >Acerca del evento
-                        </Typography>
+              <BlankLine/>
 
-                        <BlankLine/>
+              <TextField
+                  style={{ background: "white" }}
+                  required
+                  fullWidth
+                  id="address"
+                  label="Dirección"
+                  name="address"
+                  onChange={handleAddressChange}/>
 
-                        <ReactQuill value={richDescription}
-                                    theme="snow"
-                                    onChange={handleRichDescriptionChange}
-                                    style={{
-                                        height: '300px',
-                                        width: '800px'
-                                    }}/>
-                    </Grid>
+              <BlankLine/>
 
-                    <Grid item md={2}>
-                        <Grid container direction="column" spacing={4}>
-                            <Grid item sx={{mt: 2}}>
-                                <TextField
-                                    required
-                                    fullWidth
-                                    inputProps={{type: "number", min: 0, step: 1, pattern: "[0-9]*"}}
-                                    id="quantity"
-                                    label="Cantidad de entradas"
-                                    name="quantity"
-                                    onChange={handleCapacityChange}
-                                />
-                            </Grid>
-                        </Grid>
+              <Typography style={createEventStyles.subtitle}
+                >Acerca del evento
+              </Typography>
 
-                        <BlankLine/>
+              <ReactQuill value={richDescription}
+                          theme="snow"
+                          onChange={handleRichDescriptionChange}
+                          style={{
+                            height: '300px',
+                            width: '800px'
+                          }}/>
+            </Grid>
 
-                        <BasicDatePicker setSelectedDate={handleSelectedDate}/>
-
-                        <BlankLine/>
-
-                        <BasicTimePicker setSelectedTime={handleSelectedTime}/>
-                    </Grid>
-
-                    <BlankLine/>
+            <Grid item md={2}>
+              <Grid container direction="column" spacing={4}>
+                <Grid item sx={{ mt: 2 }}>
+                  <TextField
+                    required
+                    fullWidth
+                    inputProps={{ type: "number", min: 0, step: 1 ,pattern:"[0-9]*"}}
+                    id="quantity"
+                    label="Cantidad de entradas"
+                    name="quantity"
+                    onChange={handleCapacityChange}
+                  />
                 </Grid>
+              </Grid>
 
-                <BlankLine number={4}/>
+            <BlankLine/>
 
-                <BlankLine/>
+            <BasicDatePicker setSelectedDate={handleSelectedDate}/>
 
-                <BlankLine/>
+            <BlankLine/>
 
-                <BlankLine/>
+            <BasicTimePicker setSelectedTime={handleSelectedTime}/>
+          </Grid>
 
-                <Typography component="h2"
-                            style={createEventStyles.subTitle}>Galería
-                </Typography>
+          <BlankLine/>
+        </Grid>
 
-                <BlankLine/>
+        <BlankLine/>
 
-                <Grid item md={10} item md={10}>
-                    <Grid container direction="row" spacing={2}>
-                        <Box style={createEventStyles.galleryContainer}>
+        <BlankLine/>
 
-                            <Grid item sx={{px: 2}}>
-                                <UploadAndDisplayImage
-                                    size="300px"
-                                    height="300px"
-                                    setSelectedImage={setSelectedFirstImage}
-                                />
-                            </Grid>
+        <BlankLine/>
 
-                            <Grid item sx={{px: 2}}>
-                                <UploadAndDisplayImage
-                                    size="300px"
-                                    height="300px"
-                                    setSelectedImage={setSelectedSecondImage}
-                                />
-                            </Grid>
+        <BlankLine/>
 
-                            <Grid item sx={{px: 2}}>
-                                <UploadAndDisplayImage
-                                    size="300px"
-                                    height="300px"
-                                    setSelectedImage={setSelectedThirdImage}
-                                />
-                            </Grid>
+        <Typography component="h2" style={createEventStyles.subTitle}
+        >Galería
+        </Typography>
 
-                            <Grid item sx={{px: 2}}>
-                                <UploadAndDisplayImage
-                                    size="300px"
-                                    height="300px"
-                                    setSelectedImage={setSelectedFourthImage}
-                                />
-                            </Grid>
-                        </Box>
-                    </Grid>
-                </Grid>
+        <BlankLine/>
 
-                <BlankLine number={2}/>
+        <Grid item md={10}>
+        <Grid container direction="row" spacing={2}>
+          <Box style={createEventStyles.galleryContainer}>
 
-                <Typography component="h2"
-                            style={createEventStyles.subTitle}>Agenda
-                </Typography>
+            <Grid item sx={{ px: 2 }}>
+            <UploadAndDisplayImage
+                size="300px"
+                height="300px"
+                setSelectedImage={setSelectedFirstImage}
+                scala={1}
+            />
+            </Grid>
 
-                <FullCalendar
-                    plugins={[timeGridPlugin, interactionPlugin]}
-                    editable={true}
-                    selectable={true}
-                    initialView='timeGridDay'
-                    dayHeaderContent={() => ''}
-                    slotLabelInterval={{minutes: 30}}
-                    contentHeight="1000px"
-                    allDaySlot={false}
-                    headerToolbar={false}
-                    events={events}
-                    select={handleDateSelect}
-                    eventClick={handleEventClick}
-                    eventDrop={handleEventDrop}
-                    eventResizableFromStart={true}
-                />
+            <Grid item sx={{ px: 2 }}>
+            <UploadAndDisplayImage
+                size="300px"
+                height="300px"
+                setSelectedImage={setSelectedSecondImage}
+            />
+            </Grid>
 
-                <Dialog open={open} onClose={handleDialogClose}>
-                    <DialogTitle>Agregar panel
-                    </DialogTitle>
+            <Grid item sx={{ px: 2 }}>
+            <UploadAndDisplayImage
+                size="300px"
+                height="300px"
+                setSelectedImage={setSelectedThirdImage}
+            />
+            </Grid>
 
-                    <DialogContent>
-                        <TextField autoFocus
-                                   margin="dense"
-                                   label="Nombre"
-                                   fullWidth
-                                   value={newEventTitle}
-                                   onChange={e => setNewEventTitle(e.target.value)}/>
-                    </DialogContent>
+            <Grid item sx={{ px: 2 }}>
+            <UploadAndDisplayImage
+                size="300px"
+                height="300px"
+                setSelectedImage={setSelectedFourthImage}
+            />
+            </Grid>
 
-                    <DialogActions>
-                        <Button onClick={handleDialogClose}
-                                color="primary">Cancelar
-                        </Button>
+          </Box>
+        </Grid>
+        </Grid>
 
-                        <Button onClick={handleAddEvent}
-                                color="primary">Agregar
-                        </Button>
-                    </DialogActions>
-                </Dialog>
+          <BlankLine number={2}/>
 
-                <BlankLine number={2}/>
+          <Typography component="h2"
+                      style={createEventStyles.subTitle}>Agenda
+          </Typography>
 
-                <Button
-                    type={"button"}
-                    variant="contained"
-                    onClick={handleSubmit}
-                    style={basicButtonStyle}
-                    loading={isLoading.toString()}
-                    disabled={isLoading}>
-                    <Typography>{isLoading ? 'Cargando...' : 'Crear evento'}</Typography>
-                </Button>
-            </Box>
-        </main>
-    );
+          <FullCalendar
+              plugins={[timeGridPlugin, interactionPlugin]}
+              editable={true}
+              selectable={true}
+              initialView='timeGridDay'
+              dayHeaderContent={() => ''}
+              slotLabelInterval={{minutes: 30}}
+              contentHeight="1000px"
+              allDaySlot={false}
+              headerToolbar={false}
+              events={events}
+              select={handleDateSelect}
+              eventClick={handleEventClick}
+              eventDrop={handleEventDrop}
+              eventResize={handleEventResize}
+              eventResizableFromStart={true}
+          />
+
+          <Dialog open={open} onClose={handleDialogClose}>
+              <DialogTitle>Agregar panel
+              </DialogTitle>
+
+              <DialogContent>
+                  <TextField autoFocus
+                             margin="dense"
+                             label="Nombre"
+                             fullWidth
+                             value={newEventTitle}
+                             onChange={e => setNewEventTitle(e.target.value)}/>
+              </DialogContent>
+
+              <DialogActions>
+                  <Button onClick={handleDialogClose}
+                          color="primary">Cancelar
+                  </Button>
+
+                  <Button onClick={handleAddEvent}
+                          color="primary">Agregar
+                  </Button>
+              </DialogActions>
+          </Dialog>
+
+          <BlankLine number={2}/>
+
+          <Button
+              type={"button"}
+              variant="contained"
+              onClick={handleSubmit}
+              style={basicButtonStyle}
+              loading={isLoading.toString()}
+              disabled={isLoading}>
+              <Typography>{isLoading ? 'Cargando...' : 'Crear evento'}</Typography>
+          </Button>
+      </Box>
+    </main>
+  );
 }
