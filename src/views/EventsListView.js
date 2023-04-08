@@ -5,7 +5,7 @@ import * as React from "react";
 import BasicBtn from "../components/BasicBtn";
 import DashboardDrawer from "../components/DashboardDrawer";
 import { useNavigate } from "react-router-dom";
-import { EVENT_CREATE_PATH } from "../constants/URLs";
+import {EVENT_CREATE_PATH, EVENT_ID_PARAM, EVENT_VIEW_PATH} from "../constants/URLs";
 import { EVENT_URL, EVENTS_PATH } from "../constants/URLs";
 import * as SweetAlert2 from "sweetalert2";
 
@@ -29,27 +29,13 @@ const styles = {
   },
 };
 
-function displayProject(source) {
-  return (
-    <a onClick={() => console.log("Nada por aquí todavía")}>
-      <Typography variant="h3" display="block">
-        {source.name}
-      </Typography>
-      <img
-        alt="not found"
-        width={"100%"}
-        height={"400px"}
-        style={{ borderRadius: 20, marginTop: "25px" }}
-        src={source.pictures[0]}
-      />
-    </a>
-  );
-}
-
 export default function EventsListView(props) {
   const navigate = useNavigate();
+
   const [loading, setLoading] = React.useState(true);
+
   const [selectableEvents, setSelectableEvents] = React.useState([]);
+
   React.useEffect(() => {
     getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}/all`).then(
       (res) => {
@@ -65,6 +51,24 @@ export default function EventsListView(props) {
       }
     );
   }, []);
+
+
+  const displayProject = (source) => {
+    return (
+        <a onClick={() => navigate(`${EVENT_VIEW_PATH}?${EVENT_ID_PARAM}=${source.id}`)}>
+          <Typography variant="h3" display="block">{source.name}
+          </Typography>
+
+          <img
+              alt="not found"
+              width={"100%"}
+              height={"400px"}
+              style={{ borderRadius: 20, marginTop: "25px" }}
+              src={source.pictures ? source.pictures[0] : ""}
+          />
+        </a>
+    );
+  }
 
   const onCreateEventClicked = (_) => {
     navigate(EVENT_CREATE_PATH);
