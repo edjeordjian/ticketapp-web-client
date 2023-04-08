@@ -58,6 +58,8 @@ const ViewEventView = () => {
 
     const [searchParams, setSearchParams] = useSearchParams();
 
+    const [organizerName, setOrganizerName] = React.useState("");
+
     const navigate = useNavigate();
 
     const getEventData = async () => {
@@ -89,6 +91,8 @@ const ViewEventView = () => {
                 setSelectedTime(response.time);
 
                 setAddress(response.address);
+
+                setOrganizerName(response.organizerName);
 
                 const mappedSpaces = response.agenda.map((space) => {
                     return {
@@ -188,6 +192,11 @@ const ViewEventView = () => {
                 <BlankLine/>
 
                 <Typography variant="h5"><b>Hora</b>: {selectedTime}
+                </Typography>
+
+                <BlankLine/>
+
+                <Typography variant="h5"><b>Organizador</b>: {organizerName}
                 </Typography>
 
                 <BlankLine/>

@@ -25,15 +25,6 @@ const UploadAndDisplayImage = (props) => {
 
   const handleImageChange = (imageValue) => {
       getFileSizeAndWidth(imageValue).then(({ width, height }) => {
-          if (width < MIN_WIDTH || height < MIN_HEIGHT) {
-              SweetAlert2.fire({
-                  title: IMAGE_TOO_SMALL_ERR_LBL,
-                  icon: "error"
-              }).then();
-
-              return null;
-          }
-
           if (props.scala === undefined) {
               scala = 1;
           }
@@ -43,6 +34,15 @@ const UploadAndDisplayImage = (props) => {
           ) {
               SweetAlert2.fire({
                   title: "El archivo no posee el tamaño correcto (Minimo 1 MB, Maximo 10 MB)",
+                  icon: "error"
+              }).then();
+
+              return null;
+          }
+
+          if (width < MIN_WIDTH || height < MIN_HEIGHT) {
+              SweetAlert2.fire({
+                  title: IMAGE_TOO_SMALL_ERR_LBL,
                   icon: "error"
               }).then();
 
