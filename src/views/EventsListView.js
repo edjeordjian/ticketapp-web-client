@@ -7,6 +7,7 @@ import DashboardDrawer from "../components/DashboardDrawer";
 import { useNavigate } from "react-router-dom";
 import { EVENT_CREATE_PATH } from "../constants/URLs";
 import { EVENT_URL, EVENTS_PATH } from "../constants/URLs";
+import * as SweetAlert2 from "sweetalert2";
 
 const styles = {
   title: {
