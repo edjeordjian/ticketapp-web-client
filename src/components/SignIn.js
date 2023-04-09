@@ -1,25 +1,27 @@
 import * as React from "react";
 
-import main_screen from "../media/login/login_screen.png";
+import logoImage from "../media/logo.png";
 
 import SignInGoogleButton from "./login/SignInGoogleButton";
 
 export default function SignInSide() {
-    const [wallpaper, setWallpaper] = React.useState(main_screen);
 
     return (
-        <div
-            className="wallpaper"
+        <section
             style={{
-                backgroundImage: `url(${wallpaper})`,
-                backgroundRepeat: "no-repeat",
-                backgroundPosition: "center",
                 height: "100vh",
-                width: "100vw",
-                backgroundSize: "cover"
+                width: "100vw", 
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignContent: 'center',
+                alignItems: 'center',
+                background: 'rgb(26,85,208)',
+                background: 'linear-gradient(129deg, rgba(26,85,208,1) 31%, rgba(168,187,70,1) 70%)'
             }}
         >
+            <img src={logoImage} style={{height: '200px', width: '200px'}}></img>
             <SignInGoogleButton/>
-        </div>
+        </section>
     );
 }

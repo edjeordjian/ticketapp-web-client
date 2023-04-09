@@ -22,6 +22,8 @@ import {postTo} from "../../services/helpers/RequestHelper";
 
 import {EVENTS_PATH, SIGN_IN_URL} from "../../constants/URLs";
 
+import logoImage from "../../media/google_logo.png"
+
 
 const SignInWithGoogle = (props) => {
     const navigate = useNavigate();
@@ -48,24 +50,17 @@ const SignInWithGoogle = (props) => {
         }
 
         const idToken = await auth.currentUser.getIdToken();
-
         const user = firebaseResponse.user;
 
         const uid = user.providerData[0].uid;
 
         const requestBody = {
             id:  uid,
-
             email: user.email,
-
             idToken: idToken,
-
             pictureUrl: user.photoURL,
-
             firstName: user.displayName.substring(0, user.displayName.lastIndexOf(" ")),
-
             lastName: user.displayName.substring(user.displayName.lastIndexOf(" ")),
-
             isConsumer: true
         };
 
@@ -80,11 +75,8 @@ const SignInWithGoogle = (props) => {
         } else {
             const userData = {
                 id: uid,
-
                 name: user.displayName,
-
                 email: user.email,
-
                 photoURL: user.photoURL
             };
 
@@ -100,7 +92,15 @@ const SignInWithGoogle = (props) => {
                 mode="contained"
                 onClick={handleSignIn}
                 style={signInButtonStyle}>
-                <Typography>{GOOGLE_LOG_IN_LBL}</Typography>
+                    <img src={logoImage} style={{marginRight: '25px'}}/>
+                    <Typography style={
+                        {color: '#757575',
+                        fontWeight: '800',
+                        textTransform: 'none',
+                        fontSize: '18px'}
+                        }>
+                        {GOOGLE_LOG_IN_LBL}
+                    </Typography>
             </Button>
     );
 }

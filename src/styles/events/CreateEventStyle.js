@@ -10,7 +10,7 @@ const createEventStyle = {
         marginBottom: "15px",
     },
     formContainer: {
-        marginLeft: "220px",
+        marginLeft: "260px",
         padding: "25px",
     },
     galleryContainer: {

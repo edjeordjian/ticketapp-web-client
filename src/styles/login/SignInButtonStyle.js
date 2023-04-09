@@ -1,12 +1,9 @@
 const signInButtonStyle = {
-    position: "fixed",
-    top: "80%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    padding: "16px",
+    marginTop: '25px',
+    padding: "16px 24px",
     backgroundColor: "white",
     color: "black",
-    borderRadius: "4px",
+    borderRadius: "22px",
     cursor: "pointer",
     zIndex: 100
 };

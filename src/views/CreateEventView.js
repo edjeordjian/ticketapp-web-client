@@ -38,6 +38,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
 
 import { useMainContext } from "../services/contexts/MainContext";
+import BasicBtn from "../components/BasicBtn";
 
 export default function CreateEventView () {
   const [name, setName] = React.useState("");
@@ -547,15 +548,13 @@ export default function CreateEventView () {
 
         <BlankLine number={2} />
 
-        <Button
+        <BasicBtn
           type={"button"}
           variant="contained"
           onClick={handleSubmit}
-          style={basicButtonStyle}
           loading={isLoading.toString()}
-          disabled={isLoading}>
-          <Typography>{isLoading ? "Cargando..." : "Crear evento"}</Typography>
-        </Button>
+          label={isLoading ? "Cargando..." : "Crear evento"}
+          disabled={isLoading}/>
       </Box>
     </main>
   );
