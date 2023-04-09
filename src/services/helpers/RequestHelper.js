@@ -1,14 +1,17 @@
-const JSON_HEADER = {
+const getHeader = (token) => {
+  return{
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*'
+    'Access-Control-Allow-Origin': '*',
+    'Authorization': `Bearer ${token}`
+  }
 }
 
 const REQUEST_ERR_LBL = "No pudo realizarse la acción solicitada";
 
-const postTo = (url, body) => {
+const postTo = (url, body, token = "") => {
     return fetch(url, {
             method: "POST",
-            headers: JSON_HEADER,
+            headers: getHeader(token),
             body: JSON.stringify(body)
         }
     ).then(response =>
@@ -22,10 +25,10 @@ const postTo = (url, body) => {
     } );
 };
 
-const getTo = (url) => {
+const getTo = (url, token) => {
     return fetch(url, {
             method: "GET",
-            headers: JSON_HEADER
+            headers: getHeader(token)
         }
     ).then(response =>
         response.json()

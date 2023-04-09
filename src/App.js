@@ -22,7 +22,12 @@ const logOut = (setLoggedIn) => {
 const logIn = (userData,
                idToken,
                setLoggedIn) => {
-  localStorage.setItem( "user-data", JSON.stringify(userData) );
+  localStorage.setItem( "user-data", JSON.stringify({
+    ...userData,
+    ...{
+      "token": idToken
+    }
+    }));
 
   localStorage.setItem("loggedIn", "true");
 
@@ -35,7 +40,11 @@ const getUserData = () => {
 
 const getUserId = () => {
   return getUserData().id;
-}
+};
+
+const getUserToken = () => {
+  return getUserData().token;
+};
 
 const DisplayApp = () => {
   const {isLoggedIn,
@@ -48,7 +57,7 @@ const DisplayApp = () => {
   return (
       <>
         {
-          {/* (checkLoggedIn() && isLoggedIn) */}
+          /*{ (checkLoggedIn() && isLoggedIn) }*/
           (isLoggedIn) ? (
               <BrowserRouter>
                 <DashboardDrawer/>
@@ -87,6 +96,8 @@ const App = () => {
                                               idToken,
                                               setIsLoggedIn),
           getUserData,
+
+          getUserToken,
 
           getUserId
         } );

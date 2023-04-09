@@ -44,12 +44,15 @@ export default function EventsListView (props) {
 
   const [selectableEvents, setSelectableEvents] = React.useState([]);
 
-  const { getUserId } = useMainContext();
+  const { getUserId, getUserToken } = useMainContext();
 
   const [userId, setUserId] = React.useState(getUserId());
 
+  const [userToken, setUserToken] = React.useState(getUserToken());
+
   React.useEffect(() => {
-    getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_SEARCH_NAME_URL}?${OWNER_PARAM}=${userId}`).then(
+    getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_SEARCH_NAME_URL}?${OWNER_PARAM}=${userId}`,
+      userToken).then(
       (res) => {
         if (res.error !== undefined) {
           SweetAlert2.fire({
@@ -72,7 +75,7 @@ export default function EventsListView (props) {
         </Typography>
 
         <img
-          alt="not found"
+          alt="Sin imagen"
           width={"100%"}
           height={"400px"}
           style={{ borderRadius: 20, marginTop: "25px" }}

@@ -31,6 +31,7 @@ import {turnDateStringToToday} from "../services/helpers/DateService";
 import {TextField} from "@mui/material";
 
 import ReactHtmlParser from 'react-html-parser';
+import { useMainContext } from "../services/contexts/MainContext";
 
 
 const ViewEventView = () => {
@@ -60,12 +61,17 @@ const ViewEventView = () => {
 
     const [organizerName, setOrganizerName] = React.useState("");
 
+    const { getUserId, getUserToken } = useMainContext();
+
+    const [userToken, setUserToken] = React.useState(getUserToken());
+
     const navigate = useNavigate();
 
     const getEventData = async () => {
         const eventId = searchParams.get(EVENT_ID_PARAM);
 
-        getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}?${EVENT_ID_PARAM}=${eventId}`)
+        getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}?${EVENT_ID_PARAM}=${eventId}`,
+          userToken)
             .then(response => {
                 if (response.error) {
                     SweetAlert2.fire({
@@ -98,7 +104,7 @@ const ViewEventView = () => {
                     return {
                         title: space.title,
                         start: turnDateStringToToday(space.start),
-                        end: turnDateStringToToday(space.end)
+                        end: turnDateStringToToday(space.end, true)
                     }
                 })
 
@@ -133,7 +139,8 @@ const ViewEventView = () => {
     }
 
     React.useEffect(() => {
-        getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`)
+        getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`,
+          userToken)
             .then(res => {
                 if (res.error !== undefined) {
                     SweetAlert2.fire({

@@ -61,7 +61,7 @@ const UploadAndDisplayImage = (props) => {
         {selectedImage ?
           <Box style={{position: 'relative'}}>
             <img
-            alt="not found"
+            alt="Sin imagen"
             width={props.size}
             height={props.height}
             style={{borderRadius: 20}}
