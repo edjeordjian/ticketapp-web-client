@@ -41,11 +41,8 @@ export default function EventsListView (props) {
   const navigate = useNavigate();
 
   const [loading, setLoading] = React.useState(true);
-
   const [selectableEvents, setSelectableEvents] = React.useState([]);
-
   const { getUserId, getUserToken } = useMainContext();
-
   const [userId, setUserId] = React.useState(getUserId());
 
   const [userToken, setUserToken] = React.useState(getUserToken());
@@ -92,7 +89,7 @@ export default function EventsListView (props) {
   };
   return (
     <>
-      <Box style={{ marginLeft: "220px", padding: "25px" }}>
+      <Box style={{ marginLeft: "250px", padding: "25px" }}>
         <Box style={styles.btnContainer}>
           <BasicBtn label={"Crear evento"} onClick={onCreateEventClicked} />
         </Box>

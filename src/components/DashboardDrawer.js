@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar} from "@mui/material";
 import {useNavigate} from "react-router-dom";
 import {EVENTS_PATH} from "../constants/URLs";
@@ -9,7 +9,9 @@ import LogoutIcon from '@mui/icons-material/Logout';
 
 
 export default function DashboardDrawer() {
-    const [optionSelected, setOptionSelected] = React.useState(true);
+    const [optionSelected, setOptionSelected] = useState(true);
+    const { getUserData } = useMainContext();
+    const [userData, setUserData] = useState({})
 
     const navigate = useNavigate();
 
@@ -17,19 +19,21 @@ export default function DashboardDrawer() {
 
     const handleLogOut = () => {
         logOut();
-
         navigate("/");
     }
 
-    const urlImage = "https://www.gannett-cdn.com/presto/2022/09/13/PDTN/41e554ae-5609-4660-8080-a24decd399b7-IMG_1593.jpeg?crop=2015,1134,x0,y151&width=2015&height=1134&format=pjpg&auto=webp";
+    useEffect(() => {
+        const data = getUserData();
+        setUserData(data);
+    }, []);
 
     return (
         <Drawer
             sx={{
-                width: 200,
+                width: 240,
                 flexShrink: 0,
                 '& .MuiDrawer-paper': {
-                    width: 220,
+                    width: 240,
                     boxSizing: 'border-box',
                     zIndex: 1
                 },
@@ -38,8 +42,8 @@ export default function DashboardDrawer() {
             anchor="left"
             className="office-dashboard-drawer">
             <Toolbar style={{padding: '15px', display: 'flex', justifyContent: 'space-around'}}>
-                <img style={{height: '50px', width: '50px', borderRadius: '5px'}} src={urlImage}/>
-                <p style={{color: '#1F1F22', fontSize: '14px'}}>mail@mail.com</p>
+                <img referrerpolicy="no-referrer" style={{height: '50px', width: '50px', borderRadius: '5px'}} src={userData.photoURL}/>
+                <p style={{color: '#1F1F22', fontSize: '14px'}}>{userData.email}</p>
             </Toolbar>
             <Divider/>
             <List>
