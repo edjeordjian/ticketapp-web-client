@@ -6,8 +6,9 @@ node_modules
 # Env files
 .env
 
-# Intellij
+# JetBrains
 /.idea
+.prettierrc
 
 # misc
 .DS_Store

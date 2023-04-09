@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { LocalizationProvider,
-    DatePicker } from '@mui/x-date-pickers';
+         DatePicker } from '@mui/x-date-pickers';
 import moment from 'moment';
 import 'moment/locale/es';
 

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
@@ -22,12 +21,19 @@ const MenuProps = {
 };
 
 export default function TagField(props) {
-    const theme = useTheme();
-
     const [types, setTypes] = React.useState(props.selectableTypes);
 
-    const [selectedValues, setSelectedValues] = React.useState([])
+    const [selectedValues, setSelectedValues] = React.useState([]);
 
+    React.useEffect(() => {
+        if (selectedValues.length > 0) {
+            const values = types.filter(type => selectedValues.includes(type.id));
+
+            if (values.length > 0) {
+                setSelectedValues(values);
+            }
+        }
+    }, [selectedValues]);
 
     const handleChange = (event) => {
         const {
@@ -43,7 +49,9 @@ export default function TagField(props) {
     return (
         <div>
             <FormControl sx={{ m: 1, width: 300 }}>
-                <InputLabel id="demo-multiple-chip-label">Categorías</InputLabel>
+                <InputLabel id="demo-multiple-chip-label">Categorías
+                </InputLabel>
+
                 <Select
                     labelId="demo-multiple-chip-label"
                     id="demo-multiple-chip"
@@ -58,14 +66,12 @@ export default function TagField(props) {
                             ))}
                         </Box>
                     )}
-                    MenuProps={MenuProps}
-                >
+                    MenuProps={MenuProps}>
+
                     {types.map((type) => (
                         <MenuItem
                             key={type.id}
-                            value={type.name}
-                        >
-                            {type.name}
+                            value={type.name}>{type.name}
                         </MenuItem>
                     ))}
                 </Select>

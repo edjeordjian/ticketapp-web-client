@@ -16,20 +16,7 @@ import { getKeys } from "../services/helpers/JsonHelpers";
 import BasicTimePicker from "../components/BasicTimePicker";
 import ReactQuill from "react-quill";
 import { createEventStyle as createEventStyles } from "../styles/events/CreateEventStyle";
-import BasicBtn from "../components/BasicBtn";
 import SweetAlert2 from "sweetalert2";
-
-import {
-  CREATED_EVENT_LBL,
-  UPLOAD_IMAGE_ERR_LBL,
-} from "../constants/EventConstants";
-import { useNavigate } from "react-router-dom";
-import { uploadFile } from "../services/helpers/CloudStorageService";
-
-import { basicButtonStyle } from "../styles/events/BasicButtonStyle";
-import FullCalendar from "@fullcalendar/react";
-import interactionPlugin from "@fullcalendar/interaction";
-import timeGridPlugin from "@fullcalendar/timegrid";
 
 import {
   Button,
@@ -38,11 +25,21 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  TextField,
+  TextField
 } from "@mui/material";
+
+import { CREATED_EVENT_LBL, IMAGE_TOO_SMALL_ERR_LBL, UPLOAD_IMAGE_ERR_LBL } from "../constants/EventConstants";
+import { useNavigate } from "react-router-dom";
+import { uploadFile } from "../services/helpers/CloudStorageService";
+
+import { basicButtonStyle } from "../styles/events/BasicButtonStyle";
+import FullCalendar from "@fullcalendar/react";
+import interactionPlugin from "@fullcalendar/interaction";
+import timeGridPlugin from "@fullcalendar/timegrid";
+
 import { useMainContext } from "../services/contexts/MainContext";
 
-export default function CreateEventView() {
+export default function CreateEventView () {
   const [name, setName] = React.useState("");
 
   const [richDescription, setRichDescription] = React.useState("");
@@ -83,7 +80,9 @@ export default function CreateEventView() {
 
   const [newEventEnd, setNewEventEnd] = React.useState(null);
 
-  const { getUserData } = useMainContext();
+  const { getUserData, getUserToken } = useMainContext();
+
+  const [userToken, setUserToken] = React.useState(getUserToken());
 
   const navigate = useNavigate();
 
@@ -104,7 +103,7 @@ export default function CreateEventView() {
     if (events.filter((event) => event.title === newEventTitle).length !== 0) {
       SweetAlert2.fire({
         title: "Ya existe un panel con ese nombre.",
-        icon: "error",
+        icon: "error"
       }).then();
 
       handleDialogClose();
@@ -112,13 +111,13 @@ export default function CreateEventView() {
       return;
     }
 
-    setEvents((prevEvents) => [
+    setEvents(prevEvents => [
       ...prevEvents,
       {
         title: newEventTitle,
         start: newEventStart,
-        end: newEventEnd,
-      },
+        end: newEventEnd
+      }
     ]);
 
     handleDialogClose();
@@ -130,12 +129,10 @@ export default function CreateEventView() {
       icon: "warning",
       showDenyButton: true,
       confirmButtonText: "Sí",
-      denyButtonText: "No",
+      denyButtonText: "No"
     }).then((result) => {
       if (result.isConfirmed) {
-        const newEvents = events.filter(
-          (event) => event.title !== clickInfo.event.title
-        );
+        const newEvents = events.filter((event) => event.title !== clickInfo.event.title);
         setEvents(newEvents);
       }
     });
@@ -147,10 +144,27 @@ export default function CreateEventView() {
     const index = events.findIndex((e) => e.title === event.title);
 
     const updatedEvent = {
-      ...event,
       title: event.title,
       start: event.start.toISOString(),
-      end: event.end.toISOString(),
+      end: event.end.toISOString()
+    };
+
+    const newEvents = [...events];
+
+    newEvents[index] = updatedEvent;
+
+    setEvents(newEvents);
+  };
+
+  const handleEventResize = (eventResizeInfo) => {
+    const { event } = eventResizeInfo;
+
+    const index = events.findIndex((e) => e.title === event.title);
+
+    const updatedEvent = {
+      title: event.title,
+      start: event.start.toISOString(),
+      end: event.end.toISOString()
     };
 
     const newEvents = [...events];
@@ -203,20 +217,38 @@ export default function CreateEventView() {
       if (selectedWallpaper) {
         wallpaper = await uploadFile(selectedWallpaper, selectedWallpaper.name);
 
+        if (!wallpaper) {
+          return SweetAlert2.fire({
+            title: IMAGE_TOO_SMALL_ERR_LBL,
+            icon: "error"
+          }).then();
+        }
+
         pictures.push(wallpaper);
       }
 
       if (selectedFirstImage) {
         image1 = await uploadFile(selectedFirstImage, selectedFirstImage.name);
 
+        if (!image1) {
+          return SweetAlert2.fire({
+            title: IMAGE_TOO_SMALL_ERR_LBL,
+            icon: "error"
+          }).then();
+        }
+
         pictures.push(image1);
       }
 
       if (selectedSecondImage) {
-        image2 = await uploadFile(
-          selectedSecondImage,
-          selectedSecondImage.name
-        );
+        image2 = await uploadFile(selectedSecondImage, selectedSecondImage.name);
+
+        if (!image2) {
+          return SweetAlert2.fire({
+            title: IMAGE_TOO_SMALL_ERR_LBL,
+            icon: "error"
+          }).then();
+        }
 
         pictures.push(image2);
       }
@@ -224,14 +256,25 @@ export default function CreateEventView() {
       if (selectedThirdImage) {
         image3 = await uploadFile(selectedThirdImage, selectedThirdImage.name);
 
+        if (!image3) {
+          return SweetAlert2.fire({
+            title: IMAGE_TOO_SMALL_ERR_LBL,
+            icon: "error"
+          }).then();
+        }
+
         pictures.push(image3);
       }
 
       if (selectedFourthImage) {
-        image4 = await uploadFile(
-          selectedFourthImage,
-          selectedFourthImage.name
-        );
+        image4 = await uploadFile(selectedFourthImage, selectedFourthImage.name);
+
+        if (!image4) {
+          return SweetAlert2.fire({
+            title: IMAGE_TOO_SMALL_ERR_LBL,
+            icon: "error"
+          }).then();
+        }
 
         pictures.push(image4);
       }
@@ -242,7 +285,7 @@ export default function CreateEventView() {
 
       SweetAlert2.fire({
         icon: "info",
-        title: UPLOAD_IMAGE_ERR_LBL,
+        title: UPLOAD_IMAGE_ERR_LBL
       }).then();
     }
 
@@ -267,25 +310,25 @@ export default function CreateEventView() {
 
       pictures: pictures,
 
-      agenda: events,
+      agenda: events
     };
 
-    postTo(
-      `${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}`,
-      eventPayload
-    ).then((res) => {
+    postTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}`,
+      eventPayload,
+      userToken).then(res => {
+
       setIsLoading(false);
 
       if (res.error) {
         SweetAlert2.fire({
           icon: "error",
-          title: res.error,
+          title: res.error
         }).then();
       } else {
         SweetAlert2.fire({
           icon: "info",
-          title: CREATED_EVENT_LBL,
-        }).then((res) => {
+          title: CREATED_EVENT_LBL
+        }).then(res => {
           navigate(EVENTS_PATH);
         });
       }
@@ -293,45 +336,39 @@ export default function CreateEventView() {
   };
 
   React.useEffect(() => {
-    getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`).then(
-      (res) => {
-        if (res.error !== undefined) {
-          SweetAlert2.fire({
-            title: res.error,
-            icon: "error",
-          }).then();
-        } else {
-          setSelectableTypes(res.event_types);
-        }
-
-        setLoading(false);
+    getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`,
+      userToken).then(res => {
+      if (res.error !== undefined) {
+        SweetAlert2.fire({
+          title: res.error,
+          icon: "error"
+        }).then();
+      } else {
+        setSelectableTypes(res.event_types);
       }
-    );
+
+      setLoading(false);
+    });
   }, []);
 
   return (
     <main style={{ backgroundColor: "#eeeeee", minHeight: "100vh" }}>
       <Box style={createEventStyles.formContainer}>
-        <Typography component="h1" style={createEventStyles.title}>
-          Foto de Portada
+        <Typography component="h1" style={createEventStyles.title}
+        >Foto de Portada
         </Typography>
 
-        <UploadAndDisplayImage
-          size="100%"
-          height="400px"
-          setSelectedImage={setSelectedWallpaper}
-        />
-        <Typography variant="caption" display="block">
-          Resolución recomenda: 1920 x 1080
-        </Typography>
+        <UploadAndDisplayImage size="100%"
+                               height="400px"
+                               setSelectedImage={setSelectedWallpaper} />
+
         <Grid
           container
           direction="row"
           justifyContent="space-between"
           alignItems="stretch"
           sx={{ mt: 2 }}
-          spacing={2}
-        >
+          spacing={2}>
           <Grid item mt={2}>
             <TextField
               style={{ background: "white" }}
@@ -339,20 +376,17 @@ export default function CreateEventView() {
               fullWidth
               id="name"
               label="Nombre"
-              name="name"
-              onChange={handleNameChange}
-            />
+              value={name}
+              onChange={handleNameChange} />
 
             <BlankLine />
 
             {loading ? (
               <p></p>
             ) : (
-              <InputTags
-                onTypesChange={handleTypesChange}
-                selectableTypes={selectableTypes}
-                selectedTypes={[]}
-              ></InputTags>
+              <InputTags onTypesChange={handleTypesChange}
+                         selectableTypes={selectableTypes}
+                         selectedTypes={[]}> </InputTags>
             )}
 
             <BlankLine />
@@ -364,24 +398,21 @@ export default function CreateEventView() {
               id="address"
               label="Dirección"
               name="address"
-              onChange={handleAddressChange}
-            />
+              onChange={handleAddressChange} />
 
             <BlankLine />
 
-            <Typography style={createEventStyles.subtitle}>
-              Acerca del evento
+            <Typography style={createEventStyles.subtitle}
+            >Acerca del evento
             </Typography>
 
-            <ReactQuill
-              value={richDescription}
-              theme="snow"
-              onChange={handleRichDescriptionChange}
-              style={{
-                height: "300px",
-                width: "800px",
-              }}
-            />
+            <ReactQuill value={richDescription}
+                        theme="snow"
+                        onChange={handleRichDescriptionChange}
+                        style={{
+                          height: "300px",
+                          width: "800px"
+                        }} />
           </Grid>
 
           <Grid item md={2}>
@@ -390,12 +421,7 @@ export default function CreateEventView() {
                 <TextField
                   required
                   fullWidth
-                  inputProps={{
-                    type: "number",
-                    min: 0,
-                    step: 1,
-                    pattern: "[0-9]*",
-                  }}
+                  inputProps={{ type: "number", min: 0, step: 1, pattern: "[0-9]*" }}
                   id="quantity"
                   label="Cantidad de entradas"
                   name="quantity"
@@ -424,8 +450,8 @@ export default function CreateEventView() {
 
         <BlankLine />
 
-        <Typography component="h2" style={createEventStyles.subTitle}>
-          Galería
+        <Typography component="h2" style={createEventStyles.subTitle}
+        >Galería
         </Typography>
 
         <BlankLine />
@@ -433,6 +459,7 @@ export default function CreateEventView() {
         <Grid item md={10}>
           <Grid container direction="row" spacing={2}>
             <Box style={createEventStyles.galleryContainer}>
+
               <Grid item sx={{ px: 2 }}>
                 <UploadAndDisplayImage
                   size="300px"
@@ -465,18 +492,16 @@ export default function CreateEventView() {
                   setSelectedImage={setSelectedFourthImage}
                 />
               </Grid>
+
             </Box>
           </Grid>
         </Grid>
 
         <BlankLine number={2} />
 
-        <TextField
-          style={{ background: "white" }}
-          required
-          fullWidth
-          label="Agenda"
-        />
+        <Typography component="h2"
+                    style={createEventStyles.subTitle}>Agenda
+        </Typography>
 
         <FullCalendar
           plugins={[timeGridPlugin, interactionPlugin]}
@@ -492,30 +517,30 @@ export default function CreateEventView() {
           select={handleDateSelect}
           eventClick={handleEventClick}
           eventDrop={handleEventDrop}
+          eventResize={handleEventResize}
           eventResizableFromStart={true}
         />
 
         <Dialog open={open} onClose={handleDialogClose}>
-          <DialogTitle>Agregar panel</DialogTitle>
+          <DialogTitle>Agregar panel
+          </DialogTitle>
 
           <DialogContent>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Nombre"
-              fullWidth
-              value={newEventTitle}
-              onChange={(e) => setNewEventTitle(e.target.value)}
-            />
+            <TextField autoFocus
+                       margin="dense"
+                       label="Nombre"
+                       fullWidth
+                       value={newEventTitle}
+                       onChange={e => setNewEventTitle(e.target.value)} />
           </DialogContent>
 
           <DialogActions>
-            <Button onClick={handleDialogClose} color="primary">
-              Cancelar
+            <Button onClick={handleDialogClose}
+                    color="primary">Cancelar
             </Button>
 
-            <Button onClick={handleAddEvent} color="primary">
-              Agregar
+            <Button onClick={handleAddEvent}
+                    color="primary">Agregar
             </Button>
           </DialogActions>
         </Dialog>
@@ -528,8 +553,7 @@ export default function CreateEventView() {
           onClick={handleSubmit}
           style={basicButtonStyle}
           loading={isLoading.toString()}
-          disabled={isLoading}
-        >
+          disabled={isLoading}>
           <Typography>{isLoading ? "Cargando..." : "Crear evento"}</Typography>
         </Button>
       </Box>
