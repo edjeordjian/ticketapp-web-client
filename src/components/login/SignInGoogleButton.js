@@ -66,7 +66,7 @@ const SignInWithGoogle = (props) => {
 
             lastName: user.displayName.substring(user.displayName.lastIndexOf(" ")),
 
-            isConsumer: true
+            isOrganizer: true
         };
 
         const response = await postTo(`${process.env.REACT_APP_BACKEND_HOST}${SIGN_IN_URL}`,
