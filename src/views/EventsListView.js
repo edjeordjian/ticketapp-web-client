@@ -96,7 +96,6 @@ export default function EventsListView (props) {
         <Box style={styles.btnContainer}>
           <BasicBtn label={"Crear evento"} onClick={onCreateEventClicked} />
         </Box>
-
         {loading ? (
           <p></p>
         ) : (

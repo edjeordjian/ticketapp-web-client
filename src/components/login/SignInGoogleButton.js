@@ -1,26 +1,17 @@
 import React, {useEffect} from 'react'
-
 import {Button} from "@mui/material";
-
 import {useMainContext} from "../../services/contexts/MainContext";
-
 import {auth} from "../../services/helpers/FirebaseService";
-
 import {useNavigate} from "react-router-dom";
-
 import Typography from "@mui/material/Typography";
-
 import {AUTHENTICATION_ERR_LBL, GOOGLE_LOG_IN_ERR_LBL, GOOGLE_LOG_IN_LBL} from "../../constants/LogInConstants";
-
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-
 import SweetAlert2 from 'sweetalert2';
-
 import {signInButtonStyle} from "../../styles/login/SignInButtonStyle";
-
 import {postTo} from "../../services/helpers/RequestHelper";
-
 import {EVENTS_PATH, SIGN_IN_URL} from "../../constants/URLs";
+
+import logoImage from "../../media/google_logo.png"
 
 
 const SignInWithGoogle = (props) => {
@@ -48,24 +39,16 @@ const SignInWithGoogle = (props) => {
         }
 
         const idToken = await auth.currentUser.getIdToken();
-
         const user = firebaseResponse.user;
-
         const uid = user.providerData[0].uid;
 
         const requestBody = {
             id:  uid,
-
             email: user.email,
-
             idToken: idToken,
-
             pictureUrl: user.photoURL,
-
             firstName: user.displayName.substring(0, user.displayName.lastIndexOf(" ")),
-
             lastName: user.displayName.substring(user.displayName.lastIndexOf(" ")),
-
             isConsumer: true
         };
 
@@ -80,11 +63,8 @@ const SignInWithGoogle = (props) => {
         } else {
             const userData = {
                 id: uid,
-
                 name: user.displayName,
-
                 email: user.email,
-
                 photoURL: user.photoURL
             };
 
@@ -100,7 +80,15 @@ const SignInWithGoogle = (props) => {
                 mode="contained"
                 onClick={handleSignIn}
                 style={signInButtonStyle}>
-                <Typography>{GOOGLE_LOG_IN_LBL}</Typography>
+                    <img src={logoImage} style={{marginRight: '25px'}}/>
+                    <Typography style={
+                        {color: '#757575', 
+                        fontWeight: '800', 
+                        textTransform: 'none',
+                        fontSize: '18px'}
+                        }>
+                        {GOOGLE_LOG_IN_LBL}
+                    </Typography>
             </Button>
     );
 }
