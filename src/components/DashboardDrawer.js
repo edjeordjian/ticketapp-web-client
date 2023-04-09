@@ -1,12 +1,17 @@
-import React from "react";
-import {Divider, Drawer, List, ListItem, ListItemText, Toolbar} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import {Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar} from "@mui/material";
 import {useNavigate} from "react-router-dom";
 import {EVENTS_PATH} from "../constants/URLs";
 import {useMainContext} from "../services/contexts/MainContext";
+import EventIcon from '@mui/icons-material/Event';
+import LogoutIcon from '@mui/icons-material/Logout';
+
 
 
 export default function DashboardDrawer() {
-    const [optionSelected, setOptionSelected] = React.useState(true);
+    const [optionSelected, setOptionSelected] = useState(true);
+    const { getUserData } = useMainContext();
+    const [userData, setUserData] = useState({})
 
     const navigate = useNavigate();
 
@@ -14,17 +19,21 @@ export default function DashboardDrawer() {
 
     const handleLogOut = () => {
         logOut();
-
         navigate("/");
     }
+
+    useEffect(() => {
+        const data = getUserData();
+        setUserData(data);
+    }, []);
 
     return (
         <Drawer
             sx={{
-                width: 200,
+                width: 240,
                 flexShrink: 0,
                 '& .MuiDrawer-paper': {
-                    width: 200,
+                    width: 240,
                     boxSizing: 'border-box',
                     zIndex: 1
                 },
@@ -32,22 +41,46 @@ export default function DashboardDrawer() {
             variant="permanent"
             anchor="left"
             className="office-dashboard-drawer">
-            <Toolbar/>
+            <Toolbar style={{
+              padding: '15px',
+              display: 'flex',
+              justifyContent: 'space-around'}}>
+                <img referrerpolicy="no-referrer" style={{
+                  height: '50px',
+                  width: '50px',
+                  borderRadius: '10px',
+                  padding: '5px'}} src={userData.photoURL}/>
+                <p style={{
+                  color: '#1F1F22',
+                  padding: '5px',
+                  fontSize: '12px'}}>{userData.email}</p>
+            </Toolbar>
             <Divider/>
             <List>
                 <ListItem button key={"Eventos"}
                           style={{color: optionSelected ? "#6B7DE5" : "#252733"}}
                           className="dashboard-item">
-                    <ListItemText primary={"Eventos"} onClick={() => navigate(EVENTS_PATH)}/>
-                </ListItem>
-
-                <ListItem button key={"Salir"}
-                          style={{color: optionSelected ? "#6B7DE5" : "#252733"}}
-                          className="dashboard-item">
-                    <ListItemText primary={"Salir"} onClick={() => handleLogOut()}/>
+                    <ListItemButton>
+                          <ListItemIcon>
+                            <EventIcon/>
+                          </ListItemIcon>
+                        <ListItemText primary={"Eventos"} onClick={() => navigate(EVENTS_PATH)}/>
+                    </ListItemButton>
                 </ListItem>
             </List>
+            <div style={{marginTop: 'auto'}}>
             <Divider/>
+            <ListItem button key={"Salir"}
+                      style={{color: optionSelected ? "#6B7DE5" : "#252733"}}
+                      className="dashboard-item">
+                      <ListItemButton>
+                          <ListItemIcon>
+                            <LogoutIcon/>
+                          </ListItemIcon>
+                          <ListItemText primary={"Salir"} onClick={() => handleLogOut()}/>
+                    </ListItemButton>
+            </ListItem>
+            </div>
         </Drawer>
     );
 }
