@@ -41,9 +41,19 @@ export default function DashboardDrawer() {
             variant="permanent"
             anchor="left"
             className="office-dashboard-drawer">
-            <Toolbar style={{padding: '15px', display: 'flex', justifyContent: 'space-around'}}>
-                <img referrerpolicy="no-referrer" style={{height: '50px', width: '50px', borderRadius: '5px'}} src={userData.photoURL}/>
-                <p style={{color: '#1F1F22', fontSize: '14px'}}>{userData.email}</p>
+            <Toolbar style={{
+              padding: '15px',
+              display: 'flex',
+              justifyContent: 'space-around'}}>
+                <img referrerpolicy="no-referrer" style={{
+                  height: '50px',
+                  width: '50px',
+                  borderRadius: '10px',
+                  padding: '5px'}} src={userData.photoURL}/>
+                <p style={{
+                  color: '#1F1F22',
+                  padding: '5px',
+                  fontSize: '12px'}}>{userData.email}</p>
             </Toolbar>
             <Divider/>
             <List>
