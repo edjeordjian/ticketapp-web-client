@@ -47,7 +47,7 @@ import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 
 import { geocodeByPlaceId } from "react-google-places-autocomplete";
 
-import { GoogleMap, useJsApiLoader, MarkerF } from "@react-google-maps/api";
+import { GoogleMap, MarkerF } from "@react-google-maps/api";
 
 export default function CreateEventView () {
   const [name, setName] = React.useState("");
@@ -98,13 +98,7 @@ export default function CreateEventView () {
 
   const [longitude, setLongitude] = React.useState(0);
 
-  const [center, setCenter] = React.useState({});
-
-  const { isLoaded } = useJsApiLoader({
-    language: "es",
-    googleMapsApiKey: MAPS_KEY,
-    libraries: ["places"]
-  });
+  const [center, setCenter] = React.useState(null);
 
   const navigate = useNavigate();
 
@@ -332,6 +326,10 @@ export default function CreateEventView () {
 
       address: address,
 
+      latitude: latitude,
+
+      longitude: longitude,
+
       date: selectedDate !== null ? selectedDate.format("YYYY-MM-DD") : "",
 
       time: selectedTime !== null ? selectedTime.format("HH:mm") : "",
@@ -430,7 +428,7 @@ export default function CreateEventView () {
 
             <BlankLine />
 
-            {isLoaded ? (
+            {true ? (
               <GooglePlacesAutocomplete
                 selectProps={{
                   placeholder: "Escriba una dirección",
@@ -447,7 +445,7 @@ export default function CreateEventView () {
 
             <BlankLine />
 
-            {isLoaded ? (
+            {center ? (
               <GoogleMap
                 mapContainerStyle={{
                   width: "800px",
