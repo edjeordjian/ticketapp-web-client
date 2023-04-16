@@ -45,7 +45,7 @@ export default function DashboardDrawer() {
               padding: '15px',
               display: 'flex',
               justifyContent: 'space-around'}}>
-                <img referrerpolicy="no-referrer" style={{
+                <img referrerPolicy="no-referrer" style={{
                   height: '50px',
                   width: '50px',
                   borderRadius: '10px',

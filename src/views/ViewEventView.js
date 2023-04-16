@@ -17,7 +17,7 @@ import {createEventStyle as createEventStyles} from "../styles/events/CreateEven
 
 import SweetAlert2 from 'sweetalert2';
 
-import {CREATED_EVENT_LBL, GET_EVENT_ERROR, UPLOAD_IMAGE_ERR_LBL} from "../constants/EventConstants";
+import { CREATED_EVENT_LBL, GET_EVENT_ERROR, MAPS_KEY, UPLOAD_IMAGE_ERR_LBL } from "../constants/EventConstants";
 import {useNavigate, useSearchParams} from "react-router-dom";
 
 import FullCalendar from '@fullcalendar/react';
@@ -32,6 +32,7 @@ import {TextField} from "@mui/material";
 
 import ReactHtmlParser from 'react-html-parser';
 import { useMainContext } from "../services/contexts/MainContext";
+import { GoogleMap, MarkerF, useJsApiLoader } from "@react-google-maps/api";
 
 
 const ViewEventView = () => {
@@ -65,6 +66,8 @@ const ViewEventView = () => {
 
     const [userToken, setUserToken] = React.useState(getUserToken());
 
+    const [center, setCenter] = React.useState(null);
+
     const navigate = useNavigate();
 
     const getEventData = async () => {
@@ -75,7 +78,7 @@ const ViewEventView = () => {
             .then(response => {
                 if (response.error) {
                     SweetAlert2.fire({
-                        title: GET_EVENT_ERROR,
+                        title: response.error,
                         icon: "error"
                     }).then();
 
@@ -99,6 +102,13 @@ const ViewEventView = () => {
                 setAddress(response.address);
 
                 setOrganizerName(response.organizerName);
+
+                if (response.latitude && response.longitude) {
+                    setCenter({
+                        lat: Number(response.latitude),
+                        lng: Number(response.longitude)
+                    });
+                }
 
                 const mappedSpaces = response.agenda.map((space) => {
                     return {
@@ -175,6 +185,26 @@ const ViewEventView = () => {
                         </b>
                     ))
                 )}
+
+                <BlankLine number={2}/>
+
+                {loading ? (
+                  <></>
+                ): (
+                  <GoogleMap
+                    mapContainerStyle={{
+                        width: "800px",
+                        height: "400px"
+                    }}
+
+                    center={center}
+
+                    zoom={17}
+                  >
+                      <MarkerF position={center} />
+                  </GoogleMap>
+                )
+                }
 
                 <BlankLine number={2}/>
 

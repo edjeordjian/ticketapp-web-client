@@ -5,8 +5,7 @@ import Typography from "@mui/material/Typography";
 import UploadAndDisplayImage from "../components/UploadAndDisplayImage";
 import BasicDatePicker from "../components/BasicDatePicker";
 import InputTags from "../components/TagField";
-import Copyright from "../components/Copyright";
-import DashboardDrawer from "../components/DashboardDrawer";
+
 import { getTo, postTo } from "../services/helpers/RequestHelper";
 import { EVENT_TYPES_URL, EVENT_URL, EVENTS_PATH } from "../constants/URLs";
 
@@ -28,17 +27,27 @@ import {
   TextField
 } from "@mui/material";
 
-import { CREATED_EVENT_LBL, IMAGE_TOO_SMALL_ERR_LBL, UPLOAD_IMAGE_ERR_LBL } from "../constants/EventConstants";
+import {
+  CREATED_EVENT_LBL,
+  IMAGE_TOO_SMALL_ERR_LBL,
+  MAPS_KEY,
+  UPLOAD_IMAGE_ERR_LBL
+} from "../constants/EventConstants";
 import { useNavigate } from "react-router-dom";
 import { uploadFile } from "../services/helpers/CloudStorageService";
 
-import { basicButtonStyle } from "../styles/events/BasicButtonStyle";
 import FullCalendar from "@fullcalendar/react";
 import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
 
 import { useMainContext } from "../services/contexts/MainContext";
 import BasicBtn from "../components/BasicBtn";
+
+import GooglePlacesAutocomplete from "react-google-places-autocomplete";
+
+import { geocodeByPlaceId } from "react-google-places-autocomplete";
+
+import { GoogleMap, MarkerF } from "@react-google-maps/api";
 
 export default function CreateEventView () {
   const [name, setName] = React.useState("");
@@ -84,6 +93,12 @@ export default function CreateEventView () {
   const { getUserData, getUserToken } = useMainContext();
 
   const [userToken, setUserToken] = React.useState(getUserToken());
+
+  const [latitude, setLatitude] = React.useState(0);
+
+  const [longitude, setLongitude] = React.useState(0);
+
+  const [center, setCenter] = React.useState(null);
 
   const navigate = useNavigate();
 
@@ -199,8 +214,14 @@ export default function CreateEventView () {
     setSelectedTime(value);
   };
 
-  const handleAddressChange = (event) => {
-    setAddress(event.target.value);
+  const onPlaceChanged = (placeSelected) => {
+    setAddress(placeSelected.label);
+
+    geocodeByPlaceId(placeSelected.value.place_id).then(results => {
+      setLatitude(results[0].geometry.location.lat());
+
+      setLongitude(results[0].geometry.location.lng());
+    });
   };
 
   const handleSubmit = async (event) => {
@@ -305,6 +326,10 @@ export default function CreateEventView () {
 
       address: address,
 
+      latitude: latitude,
+
+      longitude: longitude,
+
       date: selectedDate !== null ? selectedDate.format("YYYY-MM-DD") : "",
 
       time: selectedTime !== null ? selectedTime.format("HH:mm") : "",
@@ -352,6 +377,17 @@ export default function CreateEventView () {
     });
   }, []);
 
+  React.useEffect(() => {
+    if (!latitude && !longitude) {
+      setCenter({
+        lat: -34.61,
+        lng: -58.41
+      });
+    } else {
+      setCenter({ lat: latitude, lng: longitude });
+    }
+  }, [latitude, longitude]);
+
   return (
     <main style={{ backgroundColor: "#eeeeee", minHeight: "100vh" }}>
       <Box style={createEventStyles.formContainer}>
@@ -383,7 +419,7 @@ export default function CreateEventView () {
             <BlankLine />
 
             {loading ? (
-              <p></p>
+              <BlankLine />
             ) : (
               <InputTags onTypesChange={handleTypesChange}
                          selectableTypes={selectableTypes}
@@ -392,14 +428,40 @@ export default function CreateEventView () {
 
             <BlankLine />
 
-            <TextField
-              style={{ background: "white" }}
-              required
-              fullWidth
-              id="address"
-              label="Dirección"
-              name="address"
-              onChange={handleAddressChange} />
+            {true ? (
+              <GooglePlacesAutocomplete
+                selectProps={{
+                  placeholder: "Escriba una dirección",
+                  onChange: onPlaceChanged
+                }}
+
+                autocompletionRequest={{
+                  componentRestrictions: {
+                    country: ["ar"]
+                  }
+                }}
+              />
+            ) : <></>}
+
+            <BlankLine />
+
+            {center ? (
+              <GoogleMap
+                mapContainerStyle={{
+                  width: "800px",
+                  height: "400px"
+                }}
+
+                center={center}
+
+                zoom={17}
+              >
+                {latitude ? (
+                  <MarkerF position={center} />
+                ) : <></>
+                }
+              </GoogleMap>
+            ) : <></>}
 
             <BlankLine />
 
@@ -554,7 +616,7 @@ export default function CreateEventView () {
           onClick={handleSubmit}
           loading={isLoading.toString()}
           label={isLoading ? "Cargando..." : "Crear evento"}
-          disabled={isLoading}/>
+          disabled={isLoading} />
       </Box>
     </main>
   );
