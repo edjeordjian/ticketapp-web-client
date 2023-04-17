@@ -211,6 +211,8 @@ export default function CreateEventView() {
   const handleAddQuestion = () => {
     if (questionField.value && answerField.value) {
       setQuestions([...questions, [questionField.value, answerField.value]]);
+      questionField.value = "";
+      answerField.value = "";
     } else {
       SweetAlert2.fire({
         title: "Es necesario completar pregunta y respuesta",
@@ -547,7 +549,7 @@ export default function CreateEventView() {
             onClick={handleAddQuestion}
             size="large"
           >
-            <AddCircleOutlineIcon color="primary" fontSize="large"/>
+            <AddCircleOutlineIcon color="primary" fontSize="large" />
           </IconButton>
         </Grid>
         <Box>
@@ -555,8 +557,12 @@ export default function CreateEventView() {
             <Box key={i}>
               {
                 <Box>
-                  <Typography sx={{fontWeight: 'bold'}}>P:  {question[0]}</Typography>
-                  <Typography sx={{fontStyle: 'italic'}}>R:  {question[1]}</Typography>
+                  <Typography sx={{ fontWeight: "bold" }}>
+                    P: {question[0]}
+                  </Typography>
+                  <Typography sx={{ fontStyle: "italic" }}>
+                    R: {question[1]}
+                  </Typography>
                 </Box>
               }
             </Box>
