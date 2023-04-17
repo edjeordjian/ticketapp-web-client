@@ -510,7 +510,7 @@ export default function CreateEventView() {
         <BlankLine />
         <Grid container direction="row">
           <Typography component="h1" style={createEventStyles.title}>
-            FAQ
+            FAQ &nbsp;
           </Typography>
           <Typography
             component="h1"
