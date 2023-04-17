@@ -1,233 +1,220 @@
 import * as React from "react";
-
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import {getTo} from "../services/helpers/RequestHelper";
-import Grid from "@mui/material/Grid";
-import UploadAndDisplayImage from "../components/UploadAndDisplayImage";
-import BasicDatePicker from "../components/BasicDatePicker";
-import InputTags from "../components/TagField";
-
-import {EVENT_ID_PARAM, EVENT_TYPES_URL, EVENT_URL, EVENT_VIEW_PATH, EVENTS_PATH} from "../constants/URLs";
-
-import {BlankLine} from "../components/BlankLine";
-import 'react-quill/dist/quill.snow.css';
-
-import {createEventStyle as createEventStyles} from "../styles/events/CreateEventStyle";
-
-import SweetAlert2 from 'sweetalert2';
-
-import {CREATED_EVENT_LBL, GET_EVENT_ERROR, UPLOAD_IMAGE_ERR_LBL} from "../constants/EventConstants";
-import {useNavigate, useSearchParams} from "react-router-dom";
-
-import FullCalendar from '@fullcalendar/react';
+import { getTo } from "../services/helpers/RequestHelper";
+import { EVENT_ID_PARAM, EVENT_TYPES_URL, EVENT_URL } from "../constants/URLs";
+import { BlankLine } from "../components/BlankLine";
+import "react-quill/dist/quill.snow.css";
+import { createEventStyle as createEventStyles } from "../styles/events/CreateEventStyle";
+import SweetAlert2 from "sweetalert2";
+import { GET_EVENT_ERROR } from "../constants/EventConstants";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import FullCalendar from "@fullcalendar/react";
 import interactionPlugin from "@fullcalendar/interaction";
-import timeGridPlugin from '@fullcalendar/timegrid';
-
-import {tagStyle} from "../styles/events/EventStyles";
-import {ImageCarousel} from "../components/events/ImageCarousel";
-import {turnDateStringToToday} from "../services/helpers/DateService";
-
-import {TextField} from "@mui/material";
-
-import ReactHtmlParser from 'react-html-parser';
+import timeGridPlugin from "@fullcalendar/timegrid";
+import { tagStyle } from "../styles/events/EventStyles";
+import { ImageCarousel } from "../components/events/ImageCarousel";
+import { turnDateStringToToday } from "../services/helpers/DateService";
+import ReactHtmlParser from "react-html-parser";
 import { useMainContext } from "../services/contexts/MainContext";
 
-
 const ViewEventView = () => {
-    const [name, setName] = React.useState("");
+  const [name, setName] = React.useState("");
 
-    const [richDescription, setRichDescription] = React.useState("");
+  const [richDescription, setRichDescription] = React.useState("");
 
-    const [capacity, setCapacity] = React.useState("");
+  const [capacity, setCapacity] = React.useState("");
 
-    const [types, setTypes] = React.useState([]);
+  const [types, setTypes] = React.useState([]);
 
-    const [images, setImages] = React.useState([]);
+  const [images, setImages] = React.useState([]);
 
-    const [selectedDate, setSelectedDate] = React.useState(null);
+  const [selectedDate, setSelectedDate] = React.useState(null);
 
-    const [selectedTime, setSelectedTime] = React.useState(null);
+  const [selectedTime, setSelectedTime] = React.useState(null);
 
-    const [address, setAddress] = React.useState("");
+  const [address, setAddress] = React.useState("");
 
-    const [selectableTypes, setSelectableTypes] = React.useState([]);
+  const [selectableTypes, setSelectableTypes] = React.useState([]);
 
-    const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(true);
 
-    const [events, setEvents] = React.useState([]);
+  const [events, setEvents] = React.useState([]);
 
-    const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-    const [organizerName, setOrganizerName] = React.useState("");
+  const [organizerName, setOrganizerName] = React.useState("");
 
-    const { getUserId, getUserToken } = useMainContext();
+  const { getUserId, getUserToken } = useMainContext();
 
-    const [userToken, setUserToken] = React.useState(getUserToken());
+  const [userToken, setUserToken] = React.useState(getUserToken());
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const getEventData = async () => {
-        const eventId = searchParams.get(EVENT_ID_PARAM);
+  const getEventData = async () => {
+    const eventId = searchParams.get(EVENT_ID_PARAM);
 
-        getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}?${EVENT_ID_PARAM}=${eventId}`,
-          userToken)
-            .then(response => {
-                if (response.error) {
-                    SweetAlert2.fire({
-                        title: GET_EVENT_ERROR,
-                        icon: "error"
-                    }).then();
+    getTo(
+      `${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}?${EVENT_ID_PARAM}=${eventId}`,
+      userToken
+    ).then((response) => {
+      if (response.error) {
+        SweetAlert2.fire({
+          title: GET_EVENT_ERROR,
+          icon: "error",
+        }).then();
 
-                    setLoading(false);
+        setLoading(false);
 
-                    return;
-                }
+        return;
+      }
 
-                setName(response.name);
+      setName(response.name);
 
-                setRichDescription(response.description);
+      setRichDescription(response.description);
 
-                setCapacity(response.capacity);
+      setCapacity(response.capacity);
 
-                setTypes(response.types_names);
+      setTypes(response.types_names);
 
-                setSelectedDate(response.date);
+      setSelectedDate(response.date);
 
-                setSelectedTime(response.time);
+      setSelectedTime(response.time);
 
-                setAddress(response.address);
+      setAddress(response.address);
 
-                setOrganizerName(response.organizerName);
+      setOrganizerName(response.organizerName);
 
-                const mappedSpaces = response.agenda.map((space) => {
-                    return {
-                        title: space.title,
-                        start: turnDateStringToToday(space.start),
-                        end: turnDateStringToToday(space.end, true)
-                    }
-                })
+      const mappedSpaces = response.agenda.map((space) => {
+        return {
+          title: space.title,
+          start: turnDateStringToToday(space.start),
+          end: turnDateStringToToday(space.end, true),
+        };
+      });
 
-                setEvents(mappedSpaces);
+      setEvents(mappedSpaces);
 
-                const definedImages = [];
+      const definedImages = [];
 
-                if (response.pictures.length > 0) {
-                    definedImages.push(response.pictures[0]);
-                }
+      if (response.pictures.length > 0) {
+        definedImages.push(response.pictures[0]);
+      }
 
-                if (response.pictures.length > 1) {
-                    definedImages.push(response.pictures[1]);
-                }
+      if (response.pictures.length > 1) {
+        definedImages.push(response.pictures[1]);
+      }
 
-                if (response.pictures.length > 2) {
-                    definedImages.push(response.pictures[2]);
-                }
+      if (response.pictures.length > 2) {
+        definedImages.push(response.pictures[2]);
+      }
 
-                if (response.pictures.length > 3) {
-                    definedImages.push(response.pictures[3]);
-                }
+      if (response.pictures.length > 3) {
+        definedImages.push(response.pictures[3]);
+      }
 
-                if (response.pictures.length > 4) {
-                    definedImages.push(response.pictures[4]);
-                }
+      if (response.pictures.length > 4) {
+        definedImages.push(response.pictures[4]);
+      }
 
-                setImages(definedImages);
+      setImages(definedImages);
 
-                setLoading(false);
-            });
-    }
+      setLoading(false);
+    });
+  };
 
-    React.useEffect(() => {
-        getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`,
-          userToken)
-            .then(res => {
-                if (res.error !== undefined) {
-                    SweetAlert2.fire({
-                        title: res.error,
-                        icon: "error"
-                    }).then();
-                } else {
-                    setSelectableTypes(res.event_types);
-                }
-            })
-            .then(getEventData);
-    }, []);
+  React.useEffect(() => {
+    getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`, userToken)
+      .then((res) => {
+        if (res.error !== undefined) {
+          SweetAlert2.fire({
+            title: res.error,
+            icon: "error",
+          }).then();
+        } else {
+          setSelectableTypes(res.event_types);
+        }
+      })
+      .then(getEventData);
+  }, []);
 
-    return (
-        <main style={{backgroundColor: "#eeeeee", minHeight: "100vh"}}>
-            <Box style={createEventStyles.formContainer}>
-                <Typography variant="h1">{name}
-                </Typography>
+  return (
+    <main style={{ backgroundColor: "#eeeeee", minHeight: "100vh" }}>
+      <Box style={createEventStyles.formContainer}>
+        <Typography variant="h1">{name}</Typography>
 
-                <BlankLine/>
+        <BlankLine />
 
-                <ImageCarousel images={images}/>
+        <ImageCarousel images={images} />
 
-                <BlankLine number={2}/>
+        <BlankLine number={2} />
 
-                {loading ? (
-                    <p></p>
-                ) : (
-                    types.map((type, idx) => (
-                        <b key={idx}
-                           style={tagStyle}>{type}
-                        </b>
-                    ))
-                )}
+        {loading ? (
+          <p></p>
+        ) : (
+          types.map((type, idx) => (
+            <b key={idx} style={tagStyle}>
+              {type}
+            </b>
+          ))
+        )}
 
-                <BlankLine number={2}/>
+        <BlankLine number={2} />
 
-                <div>{ReactHtmlParser(richDescription)}
-                </div>
+        <div>{ReactHtmlParser(richDescription)}</div>
 
-                <BlankLine number={2}/>
+        <BlankLine number={2} />
 
-                <Typography variant="h5"><b>Capacidad</b>: {capacity}
-                </Typography>
+        <Typography variant="h5">
+          <b>Capacidad</b>: {capacity}
+        </Typography>
 
-                <BlankLine/>
+        <BlankLine />
 
-                <Typography variant="h5"><b>Dirección</b>: {address}
-                </Typography>
+        <Typography variant="h5">
+          <b>Dirección</b>: {address}
+        </Typography>
 
-                <BlankLine/>
+        <BlankLine />
 
-                <Typography variant="h5"><b>Fecha</b>: {selectedDate}
-                </Typography>
+        <Typography variant="h5">
+          <b>Fecha</b>: {selectedDate}
+        </Typography>
 
-                <BlankLine/>
+        <BlankLine />
 
-                <Typography variant="h5"><b>Hora</b>: {selectedTime}
-                </Typography>
+        <Typography variant="h5">
+          <b>Hora</b>: {selectedTime}
+        </Typography>
 
-                <BlankLine/>
+        <BlankLine />
 
-                <Typography variant="h5"><b>Organizador</b>: {organizerName}
-                </Typography>
+        <Typography variant="h5">
+          <b>Organizador</b>: {organizerName}
+        </Typography>
 
-                <BlankLine/>
+        <BlankLine />
 
-                {loading ? (
-                    <p></p>
-                ) : (
-                    <FullCalendar
-                        plugins={[timeGridPlugin, interactionPlugin]}
-                        editable={false}
-                        selectable={false}
-                        initialView='timeGridDay'
-                        dayHeaderContent={() => ''}
-                        slotLabelInterval={{minutes: 30}}
-                        contentHeight="1000px"
-                        events={events}
-                        allDaySlot={false}
-                        headerToolbar={false}
-                        eventResizableFromStart={true}/>)}
-            </Box>
-        </main>
-    );
-}
-
-export {
-    ViewEventView
+        {loading ? (
+          <p></p>
+        ) : (
+          <FullCalendar
+            plugins={[timeGridPlugin, interactionPlugin]}
+            editable={false}
+            selectable={false}
+            initialView="timeGridDay"
+            dayHeaderContent={() => ""}
+            slotLabelInterval={{ minutes: 30 }}
+            contentHeight="1000px"
+            events={events}
+            allDaySlot={false}
+            headerToolbar={false}
+            eventResizableFromStart={true}
+          />
+        )}
+      </Box>
+    </main>
+  );
 };
+
+export { ViewEventView };
