@@ -555,8 +555,8 @@ export default function CreateEventView() {
             <Box key={i}>
               {
                 <Box>
-                  <Typography>P:{question[0]}</Typography>
-                  <Typography>R:{question[1]}</Typography>
+                  <Typography sx={{fontWeight: 'bold'}}>P:  {question[0]}</Typography>
+                  <Typography sx={{fontStyle: 'italic'}}>R:  {question[1]}</Typography>
                 </Box>
               }
             </Box>
