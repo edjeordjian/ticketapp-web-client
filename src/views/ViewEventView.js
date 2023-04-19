@@ -17,23 +17,18 @@ import {createEventStyle as createEventStyles} from "../styles/events/CreateEven
 
 import SweetAlert2 from 'sweetalert2';
 
-import { CREATED_EVENT_LBL, GET_EVENT_ERROR, MAPS_KEY, UPLOAD_IMAGE_ERR_LBL } from "../constants/EventConstants";
+import {CREATED_EVENT_LBL, GET_EVENT_ERROR, UPLOAD_IMAGE_ERR_LBL} from "../constants/EventConstants";
 import {useNavigate, useSearchParams} from "react-router-dom";
 
 import FullCalendar from '@fullcalendar/react';
 import interactionPlugin from "@fullcalendar/interaction";
-import timeGridPlugin from '@fullcalendar/timegrid';
-
-import {tagStyle} from "../styles/events/EventStyles";
-import {ImageCarousel} from "../components/events/ImageCarousel";
-import {turnDateStringToToday} from "../services/helpers/DateService";
-
-import {TextField} from "@mui/material";
-
-import ReactHtmlParser from 'react-html-parser';
+import timeGridPlugin from "@fullcalendar/timegrid";
+import { tagStyle } from "../styles/events/EventStyles";
+import { ImageCarousel } from "../components/events/ImageCarousel";
+import { turnDateStringToToday } from "../services/helpers/DateService";
+import ReactHtmlParser from "react-html-parser";
 import { useMainContext } from "../services/contexts/MainContext";
 import { GoogleMap, MarkerF, useJsApiLoader } from "@react-google-maps/api";
-
 
 const ViewEventView = () => {
     const [name, setName] = React.useState("");
@@ -70,15 +65,15 @@ const ViewEventView = () => {
 
     const navigate = useNavigate();
 
-    const getEventData = async () => {
-        const eventId = searchParams.get(EVENT_ID_PARAM);
+  const getEventData = async () => {
+    const eventId = searchParams.get(EVENT_ID_PARAM);
 
         getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}?${EVENT_ID_PARAM}=${eventId}`,
           userToken)
             .then(response => {
                 if (response.error) {
                     SweetAlert2.fire({
-                        title: response.error,
+                        title: GET_EVENT_ERROR,
                         icon: "error"
                     }).then();
 
@@ -188,9 +183,7 @@ const ViewEventView = () => {
 
                 <BlankLine number={2}/>
 
-                {loading ? (
-                  <></>
-                ): (
+                {center ? (
                   <GoogleMap
                     mapContainerStyle={{
                         width: "800px",
@@ -201,12 +194,14 @@ const ViewEventView = () => {
 
                     zoom={17}
                   >
-                      <MarkerF position={center} />
+                      {latitude ? (
+                        <MarkerF position={center} />
+                      ) : <></>
+                      }
                   </GoogleMap>
-                )
-                }
+                ) : <></>}
 
-                <BlankLine number={2}/>
+                <BlankLine />
 
                 <div>{ReactHtmlParser(richDescription)}
                 </div>

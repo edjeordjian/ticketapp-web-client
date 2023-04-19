@@ -8,6 +8,8 @@ import InputTags from "../components/TagField";
 
 import { getTo, postTo } from "../services/helpers/RequestHelper";
 import { EVENT_TYPES_URL, EVENT_URL, EVENTS_PATH } from "../constants/URLs";
+import { FormGroup, IconButton } from "@mui/material";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
 import { BlankLine } from "../components/BlankLine";
 import "react-quill/dist/quill.snow.css";
@@ -22,7 +24,6 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   TextField
 } from "@mui/material";
@@ -31,7 +32,7 @@ import {
   CREATED_EVENT_LBL,
   IMAGE_TOO_SMALL_ERR_LBL,
   MAPS_KEY,
-  UPLOAD_IMAGE_ERR_LBL
+  UPLOAD_IMAGE_ERR_LBL,
 } from "../constants/EventConstants";
 import { useNavigate } from "react-router-dom";
 import { uploadFile } from "../services/helpers/CloudStorageService";
@@ -67,6 +68,8 @@ export default function CreateEventView () {
   const [selectedTime, setSelectedTime] = React.useState(null);
 
   const [address, setAddress] = React.useState("");
+
+  const [questions, setQuestions] = React.useState([]);
 
   const [selectedWallpaper, setSelectedWallpaper] = React.useState(null);
 
@@ -148,7 +151,9 @@ export default function CreateEventView () {
       denyButtonText: "No"
     }).then((result) => {
       if (result.isConfirmed) {
-        const newEvents = events.filter((event) => event.title !== clickInfo.event.title);
+        const newEvents = events.filter(
+          (event) => event.title !== clickInfo.event.title
+        );
         setEvents(newEvents);
       }
     });
@@ -224,6 +229,21 @@ export default function CreateEventView () {
     });
   };
 
+  const handleAddQuestion = () => {
+    if (questionField.value && answerField.value) {
+      setQuestions([...questions, [questionField.value, answerField.value]]);
+      questionField.value = "";
+      answerField.value = "";
+    } else {
+      SweetAlert2.fire({
+        title: "Es necesario completar pregunta y respuesta",
+        icon: "error",
+      }).then();
+
+      handleDialogClose();
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -263,7 +283,10 @@ export default function CreateEventView () {
       }
 
       if (selectedSecondImage) {
-        image2 = await uploadFile(selectedSecondImage, selectedSecondImage.name);
+        image2 = await uploadFile(
+          selectedSecondImage,
+          selectedSecondImage.name
+        );
 
         if (!image2) {
           return SweetAlert2.fire({
@@ -289,7 +312,10 @@ export default function CreateEventView () {
       }
 
       if (selectedFourthImage) {
-        image4 = await uploadFile(selectedFourthImage, selectedFourthImage.name);
+        image4 = await uploadFile(
+          selectedFourthImage,
+          selectedFourthImage.name
+        );
 
         if (!image4) {
           return SweetAlert2.fire({
@@ -336,13 +362,14 @@ export default function CreateEventView () {
 
       pictures: pictures,
 
-      agenda: events
+      agenda: events,
+
+      faq: questions,
     };
 
     postTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}`,
       eventPayload,
       userToken).then(res => {
-
       setIsLoading(false);
 
       if (res.error) {
@@ -391,21 +418,27 @@ export default function CreateEventView () {
   return (
     <main style={{ backgroundColor: "#eeeeee", minHeight: "100vh" }}>
       <Box style={createEventStyles.formContainer}>
-        <Typography component="h1" style={createEventStyles.title}
-        >Foto de Portada
+        <Typography component="h1" style={createEventStyles.title}>
+          Foto de Portada
         </Typography>
 
-        <UploadAndDisplayImage size="100%"
-                               height="400px"
-                               setSelectedImage={setSelectedWallpaper} />
-
+        <UploadAndDisplayImage
+          size="100%"
+          height="400px"
+          setSelectedImage={setSelectedWallpaper}
+        />
+        <Typography variant="caption" display="block" gutterBottom>
+          Resolucion recomendada 1920x1080. Tamaño requerido 1MB mínimo, 10MB
+          máximo
+        </Typography>
         <Grid
           container
           direction="row"
           justifyContent="space-between"
           alignItems="stretch"
           sx={{ mt: 2 }}
-          spacing={2}>
+          spacing={2}
+        >
           <Grid item mt={2}>
             <TextField
               style={{ background: "white" }}
@@ -419,11 +452,15 @@ export default function CreateEventView () {
             <BlankLine />
 
             {loading ? (
-              <BlankLine />
+              <p></p>
             ) : (
-              <InputTags onTypesChange={handleTypesChange}
-                         selectableTypes={selectableTypes}
-                         selectedTypes={[]}> </InputTags>
+              <InputTags
+                onTypesChange={handleTypesChange}
+                selectableTypes={selectableTypes}
+                selectedTypes={[]}
+              >
+                {" "}
+              </InputTags>
             )}
 
             <BlankLine />
@@ -484,7 +521,12 @@ export default function CreateEventView () {
                 <TextField
                   required
                   fullWidth
-                  inputProps={{ type: "number", min: 0, step: 1, pattern: "[0-9]*" }}
+                  inputProps={{
+                    type: "number",
+                    min: 0,
+                    step: 1,
+                    pattern: "[0-9]*",
+                  }}
                   id="quantity"
                   label="Cantidad de entradas"
                   name="quantity"
@@ -513,16 +555,76 @@ export default function CreateEventView () {
 
         <BlankLine />
 
-        <Typography component="h2" style={createEventStyles.subTitle}
-        >Galería
+        <Typography component="h2" style={createEventStyles.subTitle}>
+          Galería
         </Typography>
 
         <BlankLine />
+        <Grid container direction="row">
+          <Typography component="h1" style={createEventStyles.title}>
+            FAQ &nbsp;
+          </Typography>
+          <Typography
+            component="h1"
+            style={createEventStyles.title}
+            sx={{ color: "text.secondary" }}
+          >
+            (Sumá las preguntas más frecuentes)
+          </Typography>
+        </Grid>
+        <Grid
+          container
+          direction="row"
+          justifyContent="flex-start"
+          alignItems="flex-start"
+        >
+          <Grid item container direction="column" md={10}>
+            <TextField
+              sx={{ paddingBottom: 2 }}
+              id="questionField"
+              name="questionField"
+              variant="outlined"
+              placeholder="Pregunta"
+            />
+            <TextField
+              sx={{ paddingBottom: 2 }}
+              id="answerField"
+              name="answerField"
+              variant="outlined"
+              placeholder="Respuesta"
+            />
+          </Grid>
 
+          <IconButton
+            type={"button"}
+            variant="contained"
+            onClick={handleAddQuestion}
+            size="large"
+          >
+            <AddCircleOutlineIcon color="primary" fontSize="large" />
+          </IconButton>
+        </Grid>
+        <Box>
+          {questions.map((question, i) => (
+            <Box key={i}>
+              {
+                <Box>
+                  <Typography sx={{ fontWeight: "bold" }}>
+                    P: {question[0]}
+                  </Typography>
+                  <Typography sx={{ fontStyle: "italic" }}>
+                    R: {question[1]}
+                  </Typography>
+                </Box>
+              }
+            </Box>
+          ))}
+        </Box>
+        <BlankLine />
+        <BlankLine />
         <Grid item md={10}>
           <Grid container direction="row" spacing={2}>
             <Box style={createEventStyles.galleryContainer}>
-
               <Grid item sx={{ px: 2 }}>
                 <UploadAndDisplayImage
                   size="300px"
@@ -562,8 +664,8 @@ export default function CreateEventView () {
 
         <BlankLine number={2} />
 
-        <Typography component="h2"
-                    style={createEventStyles.subTitle}>Agenda
+        <Typography component="h2" style={createEventStyles.subTitle}>
+          Agenda
         </Typography>
 
         <FullCalendar
@@ -616,7 +718,8 @@ export default function CreateEventView () {
           onClick={handleSubmit}
           loading={isLoading.toString()}
           label={isLoading ? "Cargando..." : "Crear evento"}
-          disabled={isLoading} />
+          disabled={isLoading}
+        />
       </Box>
     </main>
   );
