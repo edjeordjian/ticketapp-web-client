@@ -5,6 +5,7 @@ import Typography from "@mui/material/Typography";
 import UploadAndDisplayImage from "../components/UploadAndDisplayImage";
 import BasicDatePicker from "../components/BasicDatePicker";
 import InputTags from "../components/TagField";
+
 import { getTo, postTo } from "../services/helpers/RequestHelper";
 import { EVENT_TYPES_URL, EVENT_URL, EVENTS_PATH } from "../constants/URLs";
 import { FormGroup, IconButton } from "@mui/material";
@@ -24,16 +25,18 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  TextField,
+  TextField
 } from "@mui/material";
 
 import {
   CREATED_EVENT_LBL,
   IMAGE_TOO_SMALL_ERR_LBL,
+  MAPS_KEY,
   UPLOAD_IMAGE_ERR_LBL,
 } from "../constants/EventConstants";
 import { useNavigate } from "react-router-dom";
 import { uploadFile } from "../services/helpers/CloudStorageService";
+
 import FullCalendar from "@fullcalendar/react";
 import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -41,7 +44,13 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import { useMainContext } from "../services/contexts/MainContext";
 import BasicBtn from "../components/BasicBtn";
 
-export default function CreateEventView() {
+import GooglePlacesAutocomplete from "react-google-places-autocomplete";
+
+import { geocodeByPlaceId } from "react-google-places-autocomplete";
+
+import { GoogleMap, MarkerF } from "@react-google-maps/api";
+
+export default function CreateEventView () {
   const [name, setName] = React.useState("");
 
   const [richDescription, setRichDescription] = React.useState("");
@@ -88,6 +97,12 @@ export default function CreateEventView() {
 
   const [userToken, setUserToken] = React.useState(getUserToken());
 
+  const [latitude, setLatitude] = React.useState(0);
+
+  const [longitude, setLongitude] = React.useState(0);
+
+  const [center, setCenter] = React.useState(null);
+
   const navigate = useNavigate();
 
   const handleDateSelect = (selectInfo) => {
@@ -107,7 +122,7 @@ export default function CreateEventView() {
     if (events.filter((event) => event.title === newEventTitle).length !== 0) {
       SweetAlert2.fire({
         title: "Ya existe un panel con ese nombre.",
-        icon: "error",
+        icon: "error"
       }).then();
 
       handleDialogClose();
@@ -115,13 +130,13 @@ export default function CreateEventView() {
       return;
     }
 
-    setEvents((prevEvents) => [
+    setEvents(prevEvents => [
       ...prevEvents,
       {
         title: newEventTitle,
         start: newEventStart,
-        end: newEventEnd,
-      },
+        end: newEventEnd
+      }
     ]);
 
     handleDialogClose();
@@ -133,7 +148,7 @@ export default function CreateEventView() {
       icon: "warning",
       showDenyButton: true,
       confirmButtonText: "Sí",
-      denyButtonText: "No",
+      denyButtonText: "No"
     }).then((result) => {
       if (result.isConfirmed) {
         const newEvents = events.filter(
@@ -152,7 +167,7 @@ export default function CreateEventView() {
     const updatedEvent = {
       title: event.title,
       start: event.start.toISOString(),
-      end: event.end.toISOString(),
+      end: event.end.toISOString()
     };
 
     const newEvents = [...events];
@@ -170,7 +185,7 @@ export default function CreateEventView() {
     const updatedEvent = {
       title: event.title,
       start: event.start.toISOString(),
-      end: event.end.toISOString(),
+      end: event.end.toISOString()
     };
 
     const newEvents = [...events];
@@ -204,8 +219,14 @@ export default function CreateEventView() {
     setSelectedTime(value);
   };
 
-  const handleAddressChange = (event) => {
-    setAddress(event.target.value);
+  const onPlaceChanged = (placeSelected) => {
+    setAddress(placeSelected.label);
+
+    geocodeByPlaceId(placeSelected.value.place_id).then(results => {
+      setLatitude(results[0].geometry.location.lat());
+
+      setLongitude(results[0].geometry.location.lng());
+    });
   };
 
   const handleAddQuestion = () => {
@@ -220,8 +241,6 @@ export default function CreateEventView() {
       }).then();
 
       handleDialogClose();
-
-      return;
     }
   };
 
@@ -243,7 +262,7 @@ export default function CreateEventView() {
         if (!wallpaper) {
           return SweetAlert2.fire({
             title: IMAGE_TOO_SMALL_ERR_LBL,
-            icon: "error",
+            icon: "error"
           }).then();
         }
 
@@ -256,7 +275,7 @@ export default function CreateEventView() {
         if (!image1) {
           return SweetAlert2.fire({
             title: IMAGE_TOO_SMALL_ERR_LBL,
-            icon: "error",
+            icon: "error"
           }).then();
         }
 
@@ -272,7 +291,7 @@ export default function CreateEventView() {
         if (!image2) {
           return SweetAlert2.fire({
             title: IMAGE_TOO_SMALL_ERR_LBL,
-            icon: "error",
+            icon: "error"
           }).then();
         }
 
@@ -285,7 +304,7 @@ export default function CreateEventView() {
         if (!image3) {
           return SweetAlert2.fire({
             title: IMAGE_TOO_SMALL_ERR_LBL,
-            icon: "error",
+            icon: "error"
           }).then();
         }
 
@@ -301,7 +320,7 @@ export default function CreateEventView() {
         if (!image4) {
           return SweetAlert2.fire({
             title: IMAGE_TOO_SMALL_ERR_LBL,
-            icon: "error",
+            icon: "error"
           }).then();
         }
 
@@ -314,7 +333,7 @@ export default function CreateEventView() {
 
       SweetAlert2.fire({
         icon: "info",
-        title: UPLOAD_IMAGE_ERR_LBL,
+        title: UPLOAD_IMAGE_ERR_LBL
       }).then();
     }
 
@@ -333,6 +352,10 @@ export default function CreateEventView() {
 
       address: address,
 
+      latitude: latitude,
+
+      longitude: longitude,
+
       date: selectedDate !== null ? selectedDate.format("YYYY-MM-DD") : "",
 
       time: selectedTime !== null ? selectedTime.format("HH:mm") : "",
@@ -344,23 +367,21 @@ export default function CreateEventView() {
       faq: questions,
     };
 
-    postTo(
-      `${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}`,
+    postTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}`,
       eventPayload,
-      userToken
-    ).then((res) => {
+      userToken).then(res => {
       setIsLoading(false);
 
       if (res.error) {
         SweetAlert2.fire({
           icon: "error",
-          title: res.error,
+          title: res.error
         }).then();
       } else {
         SweetAlert2.fire({
           icon: "info",
-          title: CREATED_EVENT_LBL,
-        }).then((res) => {
+          title: CREATED_EVENT_LBL
+        }).then(res => {
           navigate(EVENTS_PATH);
         });
       }
@@ -368,14 +389,12 @@ export default function CreateEventView() {
   };
 
   React.useEffect(() => {
-    getTo(
-      `${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`,
-      userToken
-    ).then((res) => {
+    getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`,
+      userToken).then(res => {
       if (res.error !== undefined) {
         SweetAlert2.fire({
           title: res.error,
-          icon: "error",
+          icon: "error"
         }).then();
       } else {
         setSelectableTypes(res.event_types);
@@ -384,6 +403,17 @@ export default function CreateEventView() {
       setLoading(false);
     });
   }, []);
+
+  React.useEffect(() => {
+    if (!latitude && !longitude) {
+      setCenter({
+        lat: -34.61,
+        lng: -58.41
+      });
+    } else {
+      setCenter({ lat: latitude, lng: longitude });
+    }
+  }, [latitude, longitude]);
 
   return (
     <main style={{ backgroundColor: "#eeeeee", minHeight: "100vh" }}>
@@ -417,8 +447,7 @@ export default function CreateEventView() {
               id="name"
               label="Nombre"
               value={name}
-              onChange={handleNameChange}
-            />
+              onChange={handleNameChange} />
 
             <BlankLine />
 
@@ -436,31 +465,54 @@ export default function CreateEventView() {
 
             <BlankLine />
 
-            <TextField
-              style={{ background: "white" }}
-              required
-              fullWidth
-              id="address"
-              label="Dirección"
-              name="address"
-              onChange={handleAddressChange}
-            />
+            {true ? (
+              <GooglePlacesAutocomplete
+                selectProps={{
+                  placeholder: "Escriba una dirección",
+                  onChange: onPlaceChanged
+                }}
+
+                autocompletionRequest={{
+                  componentRestrictions: {
+                    country: ["ar"]
+                  }
+                }}
+              />
+            ) : <></>}
 
             <BlankLine />
 
-            <Typography style={createEventStyles.subtitle}>
-              Acerca del evento
+            {center ? (
+              <GoogleMap
+                mapContainerStyle={{
+                  width: "800px",
+                  height: "400px"
+                }}
+
+                center={center}
+
+                zoom={17}
+              >
+                {latitude ? (
+                  <MarkerF position={center} />
+                ) : <></>
+                }
+              </GoogleMap>
+            ) : <></>}
+
+            <BlankLine />
+
+            <Typography style={createEventStyles.subtitle}
+            >Acerca del evento
             </Typography>
 
-            <ReactQuill
-              value={richDescription}
-              theme="snow"
-              onChange={handleRichDescriptionChange}
-              style={{
-                height: "300px",
-                width: "800px",
-              }}
-            />
+            <ReactQuill value={richDescription}
+                        theme="snow"
+                        onChange={handleRichDescriptionChange}
+                        style={{
+                          height: "300px",
+                          width: "800px"
+                        }} />
           </Grid>
 
           <Grid item md={2}>
@@ -605,6 +657,7 @@ export default function CreateEventView() {
                   setSelectedImage={setSelectedFourthImage}
                 />
               </Grid>
+
             </Box>
           </Grid>
         </Grid>
@@ -634,26 +687,25 @@ export default function CreateEventView() {
         />
 
         <Dialog open={open} onClose={handleDialogClose}>
-          <DialogTitle>Agregar panel</DialogTitle>
+          <DialogTitle>Agregar panel
+          </DialogTitle>
 
           <DialogContent>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Nombre"
-              fullWidth
-              value={newEventTitle}
-              onChange={(e) => setNewEventTitle(e.target.value)}
-            />
+            <TextField autoFocus
+                       margin="dense"
+                       label="Nombre"
+                       fullWidth
+                       value={newEventTitle}
+                       onChange={e => setNewEventTitle(e.target.value)} />
           </DialogContent>
 
           <DialogActions>
-            <Button onClick={handleDialogClose} color="primary">
-              Cancelar
+            <Button onClick={handleDialogClose}
+                    color="primary">Cancelar
             </Button>
 
-            <Button onClick={handleAddEvent} color="primary">
-              Agregar
+            <Button onClick={handleAddEvent}
+                    color="primary">Agregar
             </Button>
           </DialogActions>
         </Dialog>
