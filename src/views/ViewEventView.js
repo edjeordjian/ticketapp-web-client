@@ -63,6 +63,8 @@ const ViewEventView = () => {
 
     const [center, setCenter] = React.useState(null);
 
+    const [questions, setQuestions] = React.useState([]);
+
     const navigate = useNavigate();
 
   const getEventData = async () => {
@@ -97,6 +99,8 @@ const ViewEventView = () => {
                 setAddress(response.address);
 
                 setOrganizerName(response.organizerName);
+
+                setQuestions(response.faq);
 
                 if (response.latitude && response.longitude) {
                     setCenter({
@@ -194,10 +198,7 @@ const ViewEventView = () => {
 
                     zoom={17}
                   >
-                      {latitude ? (
-                        <MarkerF position={center} />
-                      ) : <></>
-                      }
+                      <MarkerF position={center} />
                   </GoogleMap>
                 ) : <></>}
 
@@ -230,6 +231,29 @@ const ViewEventView = () => {
 
                 <Typography variant="h5"><b>Organizador</b>: {organizerName}
                 </Typography>
+
+                <BlankLine/>
+
+                <Typography variant="h5">
+                    <b>FAQ</b>
+                </Typography>
+
+                <Box>
+                    {questions.map((question, i) => (
+                      <Box key={i}>
+                          {
+                              <Box>
+                                  <Typography sx={{ fontWeight: "bold" }}>
+                                      P: {question.question}
+                                  </Typography>
+                                  <Typography sx={{ fontStyle: "italic" }}>
+                                      R: {question.answer}
+                                  </Typography>
+                              </Box>
+                          }
+                      </Box>
+                    ))}
+                </Box>
 
                 <BlankLine/>
 
