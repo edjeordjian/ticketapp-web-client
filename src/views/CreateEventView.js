@@ -250,13 +250,13 @@ export default function CreateEventView() {
   };
 
   const handleAddMember = () => {
-    console.log("Add");
-    if (memberField.value) {
+    let bool = memberField.value.toLowerCase().match(/\S+@\S+\.\S+/);
+    if (bool) {
       setMembers([...members, memberField.value]);
       memberField.value = "";
     } else {
       SweetAlert2.fire({
-        title: "Por favor, complete correctamente el campo",
+        title: "Por favor, complete correctamente el campo con un mail valido",
         icon: "error",
       }).then();
 
@@ -395,6 +395,8 @@ export default function CreateEventView() {
       agenda: events,
 
       faq: questions,
+
+      members: members
     };
 
     postTo(
