@@ -73,6 +73,8 @@ export default function CreateEventView() {
 
   const [questions, setQuestions] = React.useState([]);
 
+  const [members, setMembers] = React.useState([]);
+
   const [selectedWallpaper, setSelectedWallpaper] = React.useState(null);
 
   const [selectedFirstImage, setSelectedFirstImage] = React.useState(null);
@@ -245,6 +247,26 @@ export default function CreateEventView() {
 
       handleDialogClose();
     }
+  };
+
+  const handleAddMember = () => {
+    console.log("Add");
+    if (memberField.value) {
+      setMembers([...members, memberField.value]);
+      memberField.value = "";
+    } else {
+      SweetAlert2.fire({
+        title: "Por favor, complete correctamente el campo",
+        icon: "error",
+      }).then();
+
+      handleDialogClose();
+    }
+  };
+
+  const handleRemoveMember = async (index) => {
+    members.splice(index, 1);
+    setMembers([...members]);
   };
 
   const handleRemoveQuestion = async (index) => {
@@ -617,7 +639,6 @@ export default function CreateEventView() {
             <AddCircleOutlineIcon color="primary" fontSize="large" />
           </IconButton>
         </Grid>
-
         <Box>
           {questions.map((question, i) => (
             <Box key={question[0]}>
@@ -647,6 +668,78 @@ export default function CreateEventView() {
                     type={"button"}
                     variant="contained"
                     onClick={async () => handleRemoveQuestion(i)}
+                    size="large"
+                  >
+                    <ClearIcon color="primary" fontSize="large" />
+                  </IconButton>
+                </Grid>
+              }
+            </Box>
+          ))}
+        </Box>
+
+        <BlankLine />
+
+        <Typography
+          component="h1"
+          style={createEventStyles.title}
+          sx={{ color: "text.secondary" }}
+        >
+          Agrega a los asistentes del evento
+        </Typography>
+
+        <Grid
+          container
+          direction="row"
+          justifyContent="flex-start"
+          alignItems="flex-start"
+        >
+          <Grid item container direction="column" md={10}>
+            <TextField
+              sx={{ paddingBottom: 2 }}
+              id="memberField"
+              name="memberField"
+              variant="outlined"
+              placeholder="Identificación del integrante del equipo"
+            />
+          </Grid>
+
+          <IconButton
+            type={"button"}
+            variant="contained"
+            onClick={handleAddMember}
+            size="large"
+          >
+            <AddCircleOutlineIcon color="primary" fontSize="large" />
+          </IconButton>
+        </Grid>
+
+        <Box>
+          {members.map((member, i) => (
+            <Box key={i}>
+              {
+                <Grid
+                  container
+                  direction="row"
+                  justifyContent="flex-start"
+                  alignItems="flex-start"
+                >
+                  <Grid
+                    item
+                    container
+                    direction="column"
+                    justifyContent="flex-start"
+                    alignItems="flex-start"
+                    md={10}
+                  >
+                    <Typography sx={{ fontWeight: "bold" }}>
+                      {member}
+                    </Typography>
+                  </Grid>
+                  <IconButton
+                    type={"button"}
+                    variant="contained"
+                    onClick={async () => handleRemoveMember(i)}
                     size="large"
                   >
                     <ClearIcon color="primary" fontSize="large" />
