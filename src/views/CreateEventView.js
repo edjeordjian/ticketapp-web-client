@@ -50,7 +50,6 @@ import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import { geocodeByPlaceId } from "react-google-places-autocomplete";
 
 import { GoogleMap, MarkerF } from "@react-google-maps/api";
-import { async } from "q";
 
 export default function CreateEventView() {
   const [name, setName] = React.useState("");
@@ -72,8 +71,6 @@ export default function CreateEventView() {
   const [address, setAddress] = React.useState("");
 
   const [questions, setQuestions] = React.useState([]);
-
-  const [members, setMembers] = React.useState([]);
 
   const [selectedWallpaper, setSelectedWallpaper] = React.useState(null);
 
@@ -249,26 +246,6 @@ export default function CreateEventView() {
     }
   };
 
-  const handleAddMember = () => {
-    let bool = memberField.value.toLowerCase().match(/\S+@\S+\.\S+/);
-    if (bool) {
-      setMembers([...members, memberField.value]);
-      memberField.value = "";
-    } else {
-      SweetAlert2.fire({
-        title: "Por favor, complete correctamente el campo con un mail valido",
-        icon: "error",
-      }).then();
-
-      handleDialogClose();
-    }
-  };
-
-  const handleRemoveMember = async (index) => {
-    members.splice(index, 1);
-    setMembers([...members]);
-  };
-
   const handleRemoveQuestion = async (index) => {
     questions.splice(index, 1);
     setQuestions([...questions]);
@@ -394,9 +371,7 @@ export default function CreateEventView() {
 
       agenda: events,
 
-      faq: questions,
-
-      assistants: members
+      faq: questions
     };
 
     postTo(
@@ -682,78 +657,6 @@ export default function CreateEventView() {
 
         <BlankLine />
 
-        <Typography
-          component="h1"
-          style={createEventStyles.title}
-          sx={{ color: "text.secondary" }}
-        >
-          Agrega a los asistentes del evento
-        </Typography>
-
-        <Grid
-          container
-          direction="row"
-          justifyContent="flex-start"
-          alignItems="flex-start"
-        >
-          <Grid item container direction="column" md={10}>
-            <TextField
-              sx={{ paddingBottom: 2 }}
-              id="memberField"
-              name="memberField"
-              variant="outlined"
-              placeholder="Identificación del integrante del equipo"
-            />
-          </Grid>
-
-          <IconButton
-            type={"button"}
-            variant="contained"
-            onClick={handleAddMember}
-            size="large"
-          >
-            <AddCircleOutlineIcon color="primary" fontSize="large" />
-          </IconButton>
-        </Grid>
-
-        <Box>
-          {members.map((member, i) => (
-            <Box key={i}>
-              {
-                <Grid
-                  container
-                  direction="row"
-                  justifyContent="flex-start"
-                  alignItems="flex-start"
-                >
-                  <Grid
-                    item
-                    container
-                    direction="column"
-                    justifyContent="flex-start"
-                    alignItems="flex-start"
-                    md={10}
-                  >
-                    <Typography sx={{ fontWeight: "bold" }}>
-                      {member}
-                    </Typography>
-                  </Grid>
-                  <IconButton
-                    type={"button"}
-                    variant="contained"
-                    onClick={async () => handleRemoveMember(i)}
-                    size="large"
-                  >
-                    <ClearIcon color="primary" fontSize="large" />
-                  </IconButton>
-                </Grid>
-              }
-            </Box>
-          ))}
-        </Box>
-
-        <BlankLine />
-        <BlankLine />
         <Grid item md={10}>
           <Grid container direction="row" spacing={2}>
             <Box style={createEventStyles.galleryContainer}>

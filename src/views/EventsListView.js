@@ -6,11 +6,12 @@ import BasicBtn from "../components/BasicBtn";
 import DashboardDrawer from "../components/DashboardDrawer";
 import { useNavigate } from "react-router-dom";
 import {
+  ADD_TO_GROUP_PATH,
   EVENT_CREATE_PATH,
   EVENT_ID_PARAM,
   EVENT_SEARCH_NAME_URL,
   EVENT_VIEW_PATH,
-  OWNER_PARAM,
+  OWNER_PARAM
 } from "../constants/URLs";
 import { EVENT_URL, EVENTS_PATH } from "../constants/URLs";
 import * as SweetAlert2 from "sweetalert2";
@@ -29,11 +30,9 @@ const styles = {
     marginTop: "25px",
   },
   btnContainer: {
-    display: "flex",
     width: "100%",
-    justifyContent: "flex-end",
-    alignItems: "center",
     marginBottom: "15px",
+    flex: "1"
   },
 };
 
@@ -92,12 +91,34 @@ export default function EventsListView(props) {
   const onCreateEventClicked = (_) => {
     navigate(EVENT_CREATE_PATH);
   };
+
+  const navigateToAddGroupMemberScreen = () => {
+    navigate(ADD_TO_GROUP_PATH);
+  }
+
   return (
     <>
       <Box style={{ marginLeft: "250px", padding: "25px" }}>
-        <Box style={styles.btnContainer}>
-          <BasicBtn label={"Crear evento"} onClick={onCreateEventClicked} />
-        </Box>
+         <div style={{
+           display: "flex",
+           width: "100%",
+           alignItems: "center"
+         }}>
+          <Box style={styles.btnContainer}>
+            <BasicBtn label={"Crear evento"}
+                      onClick={onCreateEventClicked} />
+          </Box>
+
+          <Box style={{ marginLeft: "auto" }}>
+            <BasicBtn label={"Miembros de staff"}
+                      onClick={navigateToAddGroupMemberScreen} />
+          </Box>
+        </div>
+
+        <BlankLine/>
+
+        <BlankLine/>
+
         {loading ? (
           <p></p>
         ) : (
