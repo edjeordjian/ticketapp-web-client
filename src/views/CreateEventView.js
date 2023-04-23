@@ -9,6 +9,7 @@ import InputTags from "../components/TagField";
 import { getTo, postTo } from "../services/helpers/RequestHelper";
 import { EVENT_TYPES_URL, EVENT_URL, EVENTS_PATH } from "../constants/URLs";
 import { FormGroup, IconButton } from "@mui/material";
+import ClearIcon from "@mui/icons-material/Clear";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
 import { BlankLine } from "../components/BlankLine";
@@ -25,7 +26,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  TextField
+  TextField,
 } from "@mui/material";
 
 import {
@@ -49,8 +50,9 @@ import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import { geocodeByPlaceId } from "react-google-places-autocomplete";
 
 import { GoogleMap, MarkerF } from "@react-google-maps/api";
+import { async } from "q";
 
-export default function CreateEventView () {
+export default function CreateEventView() {
   const [name, setName] = React.useState("");
 
   const [richDescription, setRichDescription] = React.useState("");
@@ -70,6 +72,8 @@ export default function CreateEventView () {
   const [address, setAddress] = React.useState("");
 
   const [questions, setQuestions] = React.useState([]);
+
+  const [members, setMembers] = React.useState([]);
 
   const [selectedWallpaper, setSelectedWallpaper] = React.useState(null);
 
@@ -122,7 +126,7 @@ export default function CreateEventView () {
     if (events.filter((event) => event.title === newEventTitle).length !== 0) {
       SweetAlert2.fire({
         title: "Ya existe un panel con ese nombre.",
-        icon: "error"
+        icon: "error",
       }).then();
 
       handleDialogClose();
@@ -130,13 +134,13 @@ export default function CreateEventView () {
       return;
     }
 
-    setEvents(prevEvents => [
+    setEvents((prevEvents) => [
       ...prevEvents,
       {
         title: newEventTitle,
         start: newEventStart,
-        end: newEventEnd
-      }
+        end: newEventEnd,
+      },
     ]);
 
     handleDialogClose();
@@ -148,7 +152,7 @@ export default function CreateEventView () {
       icon: "warning",
       showDenyButton: true,
       confirmButtonText: "Sí",
-      denyButtonText: "No"
+      denyButtonText: "No",
     }).then((result) => {
       if (result.isConfirmed) {
         const newEvents = events.filter(
@@ -167,7 +171,7 @@ export default function CreateEventView () {
     const updatedEvent = {
       title: event.title,
       start: event.start.toISOString(),
-      end: event.end.toISOString()
+      end: event.end.toISOString(),
     };
 
     const newEvents = [...events];
@@ -185,7 +189,7 @@ export default function CreateEventView () {
     const updatedEvent = {
       title: event.title,
       start: event.start.toISOString(),
-      end: event.end.toISOString()
+      end: event.end.toISOString(),
     };
 
     const newEvents = [...events];
@@ -222,7 +226,7 @@ export default function CreateEventView () {
   const onPlaceChanged = (placeSelected) => {
     setAddress(placeSelected.label);
 
-    geocodeByPlaceId(placeSelected.value.place_id).then(results => {
+    geocodeByPlaceId(placeSelected.value.place_id).then((results) => {
       setLatitude(results[0].geometry.location.lat());
 
       setLongitude(results[0].geometry.location.lng());
@@ -230,6 +234,7 @@ export default function CreateEventView () {
   };
 
   const handleAddQuestion = () => {
+    console.log("Add");
     if (questionField.value && answerField.value) {
       setQuestions([...questions, [questionField.value, answerField.value]]);
       questionField.value = "";
@@ -242,6 +247,31 @@ export default function CreateEventView () {
 
       handleDialogClose();
     }
+  };
+
+  const handleAddMember = () => {
+    let bool = memberField.value.toLowerCase().match(/\S+@\S+\.\S+/);
+    if (bool) {
+      setMembers([...members, memberField.value]);
+      memberField.value = "";
+    } else {
+      SweetAlert2.fire({
+        title: "Por favor, complete correctamente el campo con un mail valido",
+        icon: "error",
+      }).then();
+
+      handleDialogClose();
+    }
+  };
+
+  const handleRemoveMember = async (index) => {
+    members.splice(index, 1);
+    setMembers([...members]);
+  };
+
+  const handleRemoveQuestion = async (index) => {
+    questions.splice(index, 1);
+    setQuestions([...questions]);
   };
 
   const handleSubmit = async (event) => {
@@ -262,7 +292,7 @@ export default function CreateEventView () {
         if (!wallpaper) {
           return SweetAlert2.fire({
             title: IMAGE_TOO_SMALL_ERR_LBL,
-            icon: "error"
+            icon: "error",
           }).then();
         }
 
@@ -275,7 +305,7 @@ export default function CreateEventView () {
         if (!image1) {
           return SweetAlert2.fire({
             title: IMAGE_TOO_SMALL_ERR_LBL,
-            icon: "error"
+            icon: "error",
           }).then();
         }
 
@@ -291,7 +321,7 @@ export default function CreateEventView () {
         if (!image2) {
           return SweetAlert2.fire({
             title: IMAGE_TOO_SMALL_ERR_LBL,
-            icon: "error"
+            icon: "error",
           }).then();
         }
 
@@ -304,7 +334,7 @@ export default function CreateEventView () {
         if (!image3) {
           return SweetAlert2.fire({
             title: IMAGE_TOO_SMALL_ERR_LBL,
-            icon: "error"
+            icon: "error",
           }).then();
         }
 
@@ -320,7 +350,7 @@ export default function CreateEventView () {
         if (!image4) {
           return SweetAlert2.fire({
             title: IMAGE_TOO_SMALL_ERR_LBL,
-            icon: "error"
+            icon: "error",
           }).then();
         }
 
@@ -333,7 +363,7 @@ export default function CreateEventView () {
 
       SweetAlert2.fire({
         icon: "info",
-        title: UPLOAD_IMAGE_ERR_LBL
+        title: UPLOAD_IMAGE_ERR_LBL,
       }).then();
     }
 
@@ -365,23 +395,27 @@ export default function CreateEventView () {
       agenda: events,
 
       faq: questions,
+
+      members: members
     };
 
-    postTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}`,
+    postTo(
+      `${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}`,
       eventPayload,
-      userToken).then(res => {
+      userToken
+    ).then((res) => {
       setIsLoading(false);
 
       if (res.error) {
         SweetAlert2.fire({
           icon: "error",
-          title: res.error
+          title: res.error,
         }).then();
       } else {
         SweetAlert2.fire({
           icon: "info",
-          title: CREATED_EVENT_LBL
-        }).then(res => {
+          title: CREATED_EVENT_LBL,
+        }).then((res) => {
           navigate(EVENTS_PATH);
         });
       }
@@ -389,12 +423,14 @@ export default function CreateEventView () {
   };
 
   React.useEffect(() => {
-    getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`,
-      userToken).then(res => {
+    getTo(
+      `${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`,
+      userToken
+    ).then((res) => {
       if (res.error !== undefined) {
         SweetAlert2.fire({
           title: res.error,
-          icon: "error"
+          icon: "error",
         }).then();
       } else {
         setSelectableTypes(res.event_types);
@@ -408,7 +444,7 @@ export default function CreateEventView () {
     if (!latitude && !longitude) {
       setCenter({
         lat: -34.61,
-        lng: -58.41
+        lng: -58.41,
       });
     } else {
       setCenter({ lat: latitude, lng: longitude });
@@ -447,7 +483,8 @@ export default function CreateEventView () {
               id="name"
               label="Nombre"
               value={name}
-              onChange={handleNameChange} />
+              onChange={handleNameChange}
+            />
 
             <BlankLine />
 
@@ -469,16 +506,17 @@ export default function CreateEventView () {
               <GooglePlacesAutocomplete
                 selectProps={{
                   placeholder: "Escriba una dirección",
-                  onChange: onPlaceChanged
+                  onChange: onPlaceChanged,
                 }}
-
                 autocompletionRequest={{
                   componentRestrictions: {
-                    country: ["ar"]
-                  }
+                    country: ["ar"],
+                  },
                 }}
               />
-            ) : <></>}
+            ) : (
+              <></>
+            )}
 
             <BlankLine />
 
@@ -486,33 +524,32 @@ export default function CreateEventView () {
               <GoogleMap
                 mapContainerStyle={{
                   width: "800px",
-                  height: "400px"
+                  height: "400px",
                 }}
-
                 center={center}
-
                 zoom={17}
               >
-                {latitude ? (
-                  <MarkerF position={center} />
-                ) : <></>
-                }
+                {latitude ? <MarkerF position={center} /> : <></>}
               </GoogleMap>
-            ) : <></>}
+            ) : (
+              <></>
+            )}
 
             <BlankLine />
 
-            <Typography style={createEventStyles.subtitle}
-            >Acerca del evento
+            <Typography style={createEventStyles.subtitle}>
+              Acerca del evento
             </Typography>
 
-            <ReactQuill value={richDescription}
-                        theme="snow"
-                        onChange={handleRichDescriptionChange}
-                        style={{
-                          height: "300px",
-                          width: "800px"
-                        }} />
+            <ReactQuill
+              value={richDescription}
+              theme="snow"
+              onChange={handleRichDescriptionChange}
+              style={{
+                height: "300px",
+                width: "800px",
+              }}
+            />
           </Grid>
 
           <Grid item md={2}>
@@ -606,20 +643,115 @@ export default function CreateEventView () {
         </Grid>
         <Box>
           {questions.map((question, i) => (
-            <Box key={i}>
+            <Box key={question[0]}>
               {
-                <Box>
-                  <Typography sx={{ fontWeight: "bold" }}>
-                    P: {question[0]}
-                  </Typography>
-                  <Typography sx={{ fontStyle: "italic" }}>
-                    R: {question[1]}
-                  </Typography>
-                </Box>
+                <Grid
+                  container
+                  direction="row"
+                  justifyContent="flex-start"
+                  alignItems="flex-start"
+                >
+                  <Grid
+                    item
+                    container
+                    direction="column"
+                    justifyContent="flex-start"
+                    alignItems="flex-start"
+                    md={10}
+                  >
+                    <Typography sx={{ fontWeight: "bold" }}>
+                      P: {question[0]}
+                    </Typography>
+                    <Typography sx={{ fontStyle: "italic" }}>
+                      R: {question[1]}
+                    </Typography>
+                  </Grid>
+                  <IconButton
+                    type={"button"}
+                    variant="contained"
+                    onClick={async () => handleRemoveQuestion(i)}
+                    size="large"
+                  >
+                    <ClearIcon color="primary" fontSize="large" />
+                  </IconButton>
+                </Grid>
               }
             </Box>
           ))}
         </Box>
+
+        <BlankLine />
+
+        <Typography
+          component="h1"
+          style={createEventStyles.title}
+          sx={{ color: "text.secondary" }}
+        >
+          Agrega a los asistentes del evento
+        </Typography>
+
+        <Grid
+          container
+          direction="row"
+          justifyContent="flex-start"
+          alignItems="flex-start"
+        >
+          <Grid item container direction="column" md={10}>
+            <TextField
+              sx={{ paddingBottom: 2 }}
+              id="memberField"
+              name="memberField"
+              variant="outlined"
+              placeholder="Identificación del integrante del equipo"
+            />
+          </Grid>
+
+          <IconButton
+            type={"button"}
+            variant="contained"
+            onClick={handleAddMember}
+            size="large"
+          >
+            <AddCircleOutlineIcon color="primary" fontSize="large" />
+          </IconButton>
+        </Grid>
+
+        <Box>
+          {members.map((member, i) => (
+            <Box key={i}>
+              {
+                <Grid
+                  container
+                  direction="row"
+                  justifyContent="flex-start"
+                  alignItems="flex-start"
+                >
+                  <Grid
+                    item
+                    container
+                    direction="column"
+                    justifyContent="flex-start"
+                    alignItems="flex-start"
+                    md={10}
+                  >
+                    <Typography sx={{ fontWeight: "bold" }}>
+                      {member}
+                    </Typography>
+                  </Grid>
+                  <IconButton
+                    type={"button"}
+                    variant="contained"
+                    onClick={async () => handleRemoveMember(i)}
+                    size="large"
+                  >
+                    <ClearIcon color="primary" fontSize="large" />
+                  </IconButton>
+                </Grid>
+              }
+            </Box>
+          ))}
+        </Box>
+
         <BlankLine />
         <BlankLine />
         <Grid item md={10}>
@@ -657,7 +789,6 @@ export default function CreateEventView () {
                   setSelectedImage={setSelectedFourthImage}
                 />
               </Grid>
-
             </Box>
           </Grid>
         </Grid>
@@ -687,25 +818,26 @@ export default function CreateEventView () {
         />
 
         <Dialog open={open} onClose={handleDialogClose}>
-          <DialogTitle>Agregar panel
-          </DialogTitle>
+          <DialogTitle>Agregar panel</DialogTitle>
 
           <DialogContent>
-            <TextField autoFocus
-                       margin="dense"
-                       label="Nombre"
-                       fullWidth
-                       value={newEventTitle}
-                       onChange={e => setNewEventTitle(e.target.value)} />
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Nombre"
+              fullWidth
+              value={newEventTitle}
+              onChange={(e) => setNewEventTitle(e.target.value)}
+            />
           </DialogContent>
 
           <DialogActions>
-            <Button onClick={handleDialogClose}
-                    color="primary">Cancelar
+            <Button onClick={handleDialogClose} color="primary">
+              Cancelar
             </Button>
 
-            <Button onClick={handleAddEvent}
-                    color="primary">Agregar
+            <Button onClick={handleAddEvent} color="primary">
+              Agregar
             </Button>
           </DialogActions>
         </Dialog>
