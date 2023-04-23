@@ -396,7 +396,7 @@ export default function CreateEventView() {
 
       faq: questions,
 
-      members: members
+      assistants: members
     };
 
     postTo(
