@@ -5,13 +5,17 @@ import Typography from "@mui/material/Typography";
 import UploadAndDisplayImage from "../components/UploadAndDisplayImage";
 import BasicDatePicker from "../components/BasicDatePicker";
 import InputTags from "../components/TagField";
-
 import { getTo, postTo } from "../services/helpers/RequestHelper";
-import { EVENT_TYPES_URL, EVENT_URL, EVENTS_PATH } from "../constants/URLs";
+import {
+  EVENT_TYPES_URL,
+  EVENT_URL,
+  EVENTS_PATH,
+  EVENT_ID_PARAM,
+} from "../constants/URLs";
 import { IconButton } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-
+import { turnDateStringToToday } from "../services/helpers/DateService";
 import { BlankLine } from "../components/BlankLine";
 import "react-quill/dist/quill.snow.css";
 import { getKeys } from "../services/helpers/JsonHelpers";
@@ -19,7 +23,6 @@ import BasicTimePicker from "../components/BasicTimePicker";
 import ReactQuill from "react-quill";
 import { createEventStyle as createEventStyles } from "../styles/events/CreateEventStyle";
 import SweetAlert2 from "sweetalert2";
-
 import {
   Button,
   Dialog,
@@ -28,100 +31,66 @@ import {
   DialogTitle,
   TextField,
 } from "@mui/material";
-
 import {
   CREATED_EVENT_LBL,
   IMAGE_TOO_SMALL_ERR_LBL,
-  MAPS_KEY,
   UPLOAD_IMAGE_ERR_LBL,
   PUBLISHED_STATUS_LBL,
-  DRAFT_STATUS_LBL
+  DRAFT_STATUS_LBL,
 } from "../constants/EventConstants";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { uploadFile } from "../services/helpers/CloudStorageService";
-
 import FullCalendar from "@fullcalendar/react";
 import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
-
 import { useMainContext } from "../services/contexts/MainContext";
 import BasicBtn from "../components/BasicBtn";
-
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
-
 import { geocodeByPlaceId } from "react-google-places-autocomplete";
-
 import { GoogleMap, MarkerF } from "@react-google-maps/api";
 
-export default function CreateEventView() {
-  
+export default function EditEventView() {
   const [name, setName] = React.useState("");
-
+  const [images, setImages] = React.useState([]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [organizerName, setOrganizerName] = React.useState("");
+  const { getUserId, getUserToken } = useMainContext();
   const [richDescription, setRichDescription] = React.useState("");
-
   const [capacity, setCapacity] = React.useState("");
-
   const [types, setTypes] = React.useState([]);
-
   const [selectableTypes, setSelectableTypes] = React.useState([]);
-
   const [loading, setLoading] = React.useState(true);
-
   const [selectedDate, setSelectedDate] = React.useState(null);
-
   const [selectedTime, setSelectedTime] = React.useState(null);
-
   const [address, setAddress] = React.useState("");
-
   const [questions, setQuestions] = React.useState([]);
-
   const [selectedWallpaper, setSelectedWallpaper] = React.useState(null);
-
   const [selectedFirstImage, setSelectedFirstImage] = React.useState(null);
-
   const [selectedSecondImage, setSelectedSecondImage] = React.useState(null);
-
   const [selectedThirdImage, setSelectedThirdImage] = React.useState(null);
-
   const [selectedFourthImage, setSelectedFourthImage] = React.useState(null);
-
   const [isLoading, setIsLoading] = React.useState(false);
-
   const [events, setEvents] = React.useState([]);
-
   const [open, setOpen] = React.useState(false);
-
   const [newEventTitle, setNewEventTitle] = React.useState("");
-
   const [newEventStart, setNewEventStart] = React.useState(null);
-
   const [newEventEnd, setNewEventEnd] = React.useState(null);
-
-  const { getUserData, getUserToken } = useMainContext();
-
   const [userToken, setUserToken] = React.useState(getUserToken());
-
   const [latitude, setLatitude] = React.useState(0);
-
   const [longitude, setLongitude] = React.useState(0);
-
   const [center, setCenter] = React.useState(null);
-
   const navigate = useNavigate();
-
   const handleDateSelect = (selectInfo) => {
     setOpen(true);
     setNewEventStart(selectInfo.startStr);
     setNewEventEnd(selectInfo.endStr);
   };
-
   const handleDialogClose = () => {
     setOpen(false);
     setNewEventTitle("");
     setNewEventStart(null);
     setNewEventEnd(null);
   };
-
   const handleAddEvent = () => {
     if (events.filter((event) => event.title === newEventTitle).length !== 0) {
       SweetAlert2.fire({
@@ -165,37 +134,27 @@ export default function CreateEventView() {
 
   const handleEventDrop = (eventDropInfo) => {
     const { event, delta } = eventDropInfo;
-
     const index = events.findIndex((e) => e.title === event.title);
-
     const updatedEvent = {
       title: event.title,
       start: event.start.toISOString(),
       end: event.end.toISOString(),
     };
-
     const newEvents = [...events];
-
     newEvents[index] = updatedEvent;
-
     setEvents(newEvents);
   };
 
   const handleEventResize = (eventResizeInfo) => {
     const { event } = eventResizeInfo;
-
     const index = events.findIndex((e) => e.title === event.title);
-
     const updatedEvent = {
       title: event.title,
       start: event.start.toISOString(),
       end: event.end.toISOString(),
     };
-
     const newEvents = [...events];
-
     newEvents[index] = updatedEvent;
-
     setEvents(newEvents);
   };
 
@@ -225,10 +184,8 @@ export default function CreateEventView() {
 
   const onPlaceChanged = (placeSelected) => {
     setAddress(placeSelected.label);
-
     geocodeByPlaceId(placeSelected.value.place_id).then((results) => {
       setLatitude(results[0].geometry.location.lat());
-
       setLongitude(results[0].geometry.location.lng());
     });
   };
@@ -255,39 +212,30 @@ export default function CreateEventView() {
 
   const handleSubmit = async (event, status) => {
     event.preventDefault();
-
     const typeIds = getKeys(types, selectableTypes);
-
     let wallpaper, image1, image2, image3, image4;
-
     const pictures = [];
-
     try {
       setIsLoading(true);
-
       if (selectedWallpaper) {
         wallpaper = await uploadFile(selectedWallpaper, selectedWallpaper.name);
-
         if (!wallpaper) {
           return SweetAlert2.fire({
             title: IMAGE_TOO_SMALL_ERR_LBL,
             icon: "error",
           }).then();
         }
-
         pictures.push(wallpaper);
       }
 
       if (selectedFirstImage) {
         image1 = await uploadFile(selectedFirstImage, selectedFirstImage.name);
-
         if (!image1) {
           return SweetAlert2.fire({
             title: IMAGE_TOO_SMALL_ERR_LBL,
             icon: "error",
           }).then();
         }
-
         pictures.push(image1);
       }
 
@@ -296,27 +244,23 @@ export default function CreateEventView() {
           selectedSecondImage,
           selectedSecondImage.name
         );
-
         if (!image2) {
           return SweetAlert2.fire({
             title: IMAGE_TOO_SMALL_ERR_LBL,
             icon: "error",
           }).then();
         }
-
         pictures.push(image2);
       }
 
       if (selectedThirdImage) {
         image3 = await uploadFile(selectedThirdImage, selectedThirdImage.name);
-
         if (!image3) {
           return SweetAlert2.fire({
             title: IMAGE_TOO_SMALL_ERR_LBL,
             icon: "error",
           }).then();
         }
-
         pictures.push(image3);
       }
 
@@ -429,7 +373,83 @@ export default function CreateEventView() {
       setCenter({ lat: latitude, lng: longitude });
     }
   }, [latitude, longitude]);
-  
+
+  const getEventData = async () => {
+    const eventId = searchParams.get(EVENT_ID_PARAM);
+    getTo(
+      `${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}?${EVENT_ID_PARAM}=${eventId}`,
+      userToken
+    ).then((response) => {
+      if (response.error) {
+        SweetAlert2.fire({
+          title: GET_EVENT_ERROR,
+          icon: "error",
+        }).then();
+        setLoading(false);
+        return;
+      }
+
+      setName(response.name);
+      setRichDescription(response.description);
+      setCapacity(response.capacity);
+      setTypes(response.types_names);
+      setSelectedDate(response.date);
+      setSelectedTime(response.time);
+      setAddress(response.address);
+      setOrganizerName(response.organizerName);
+      setQuestions(response.faq);
+      if (response.latitude && response.longitude) {
+        setCenter({
+          lat: Number(response.latitude),
+          lng: Number(response.longitude),
+        });
+      }
+
+      const mappedSpaces = response.agenda.map((space) => {
+        return {
+          title: space.title,
+          start: turnDateStringToToday(space.start),
+          end: turnDateStringToToday(space.end, true),
+        };
+      });
+
+      setEvents(mappedSpaces);
+      const definedImages = [];
+      if (response.pictures.length > 0) {
+        definedImages.push(response.pictures[0]);
+      }
+      if (response.pictures.length > 1) {
+        definedImages.push(response.pictures[1]);
+      }
+      if (response.pictures.length > 2) {
+        definedImages.push(response.pictures[2]);
+      }
+      if (response.pictures.length > 3) {
+        definedImages.push(response.pictures[3]);
+      }
+      if (response.pictures.length > 4) {
+        definedImages.push(response.pictures[4]);
+      }
+      setImages(definedImages);
+      setLoading(false);
+    });
+  };
+
+  React.useEffect(() => {
+    getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`, userToken)
+      .then((res) => {
+        if (res.error !== undefined) {
+          SweetAlert2.fire({
+            title: res.error,
+            icon: "error",
+          }).then();
+        } else {
+          setSelectableTypes(res.event_types);
+        }
+      })
+      .then(getEventData);
+  }, []);
+
   return (
     <main style={{ backgroundColor: "#eeeeee", minHeight: "100vh" }}>
       <Box style={createEventStyles.formContainer}>
@@ -441,6 +461,7 @@ export default function CreateEventView() {
           size="100%"
           height="400px"
           setSelectedImage={setSelectedWallpaper}
+          oldImage = {images[0]}
         />
         <Typography variant="caption" display="block" gutterBottom>
           Resolucion recomendada 1920x1080. Tamaño requerido 1MB mínimo, 10MB
@@ -473,7 +494,7 @@ export default function CreateEventView() {
               <InputTags
                 onTypesChange={handleTypesChange}
                 selectableTypes={selectableTypes}
-                selectedTypes={[]}
+                selectedTypes={types}
               >
                 {" "}
               </InputTags>
@@ -546,6 +567,7 @@ export default function CreateEventView() {
                   id="quantity"
                   label="Cantidad de entradas"
                   name="quantity"
+                  value={capacity}
                   onChange={handleCapacityChange}
                 />
               </Grid>

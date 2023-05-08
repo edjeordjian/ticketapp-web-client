@@ -1,11 +1,12 @@
 import {Route, Routes} from "react-router-dom";
 import {
   ADD_TO_GROUP_PATH, EVENT_CREATE_PATH, EVENT_VIEW_PATH,
-  EVENTS_PATH, LOG_IN_PATH
+  EVENTS_PATH, LOG_IN_PATH,EVENT_EDIT_PATH
 } from "../../constants/URLs";
 import CreateEventView from "../../views/CreateEventView";
 import EventsListView from "../../views/EventsListView";
 import SignInSide from "../../components/SignIn";
+import EditEventView from "../../views/EditEventView";
 import {ViewEventView} from "../../views/ViewEventView";
 import { AddGroupMember } from "../../views/AddGroupMember";
 
@@ -23,6 +24,8 @@ const LoggedRouter = () => {
                 <Route exact path={EVENT_CREATE_PATH} element={<CreateEventView/>}/>
 
                 <Route exact path={EVENT_VIEW_PATH} element={<ViewEventView/>}/>
+
+                <Route exact path ={EVENT_EDIT_PATH} element={<EditEventView/>}/>
 
                 <Route exact path={ADD_TO_GROUP_PATH} element={<AddGroupMember/>}/>
             </Routes>

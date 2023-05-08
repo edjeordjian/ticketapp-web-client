@@ -24,8 +24,15 @@ const styles = {
 
 const UploadAndDisplayImage = (props) => {
   const [selectedImage, setSelectedImage] = useState(null);
-
+  let oldImageCondition = props.oldImage != undefined;
+  const [oldImage, setOldImage] = useState(oldImageCondition);
   let scala = props.scala;
+  const [isEditing, setIsEditing] = useState(true);
+  const removeAllImages = () => {
+    console.log("Cambio valor de oldImage");
+    setIsEditing(false);
+    oldImage = undefined;
+  };
 
   const handleImageChange = (imageValue) => {
     getFileSizeAndWidth(imageValue).then(({ width, height }) => {
@@ -54,17 +61,31 @@ const UploadAndDisplayImage = (props) => {
 
         return null;
       }
-
       setSelectedImage(imageValue);
-
       props.setSelectedImage(imageValue);
     });
   };
-
   return (
     <div>
       <div>
-        {selectedImage ? (
+        {isEditing ? (
+          <Box style={{ position: "relative" }}>
+            <img
+              alt="Sin imagen"
+              width={props.size}
+              height={props.height}
+              style={{ borderRadius: 20 }}
+              src={props.oldImage}
+            />
+            <button
+              onClick={() => removeAllImages(null)}
+              style={styles.deleteBtn}
+            >
+              Quitar
+            </button>
+          </Box>
+        ) : null}
+        {/* {selectedImage && !oldImage && (
           <Box style={{ position: "relative" }}>
             <img
               alt="Sin imagen"
@@ -80,7 +101,8 @@ const UploadAndDisplayImage = (props) => {
               Quitar
             </button>
           </Box>
-        ) : (
+        )}{" "}
+        {!oldImage && (
           <Box
             style={{
               width: props.size,
@@ -104,7 +126,7 @@ const UploadAndDisplayImage = (props) => {
               <PhotoCamera />
             </IconButton>
           </Box>
-        )}
+        )} */}
       </div>
     </div>
   );

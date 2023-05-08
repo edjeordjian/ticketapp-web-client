@@ -10,7 +10,7 @@ export default function BasicDatePicker(props) {
   const handleDateChange = (givenDate) => {
     props.setSelectedDate(givenDate);
   };
-
+  
   return (
     <LocalizationProvider dateAdapter={AdapterMoment} locale={moment.locale()}>
       <DatePicker label="Elija una fecha" onChange={handleDateChange} />
