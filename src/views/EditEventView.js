@@ -462,6 +462,7 @@ export default function EditEventView() {
           height="400px"
           setSelectedImage={setSelectedWallpaper}
           oldImage = {images[0]}
+          isEditing = {true}
         />
         <Typography variant="caption" display="block" gutterBottom>
           Resolucion recomendada 1920x1080. Tamaño requerido 1MB mínimo, 10MB
