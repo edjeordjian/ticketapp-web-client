@@ -24,16 +24,16 @@ const styles = {
 
 const UploadAndDisplayImage = (props) => {
   const [selectedImage, setSelectedImage] = useState(null);
-  const [isEditing, setIsEditing] = useState(props.isEditing);
+  const [isEditingInterno, setEditingInterno] = useState(true)
   let oldImage = props.oldImage;
   let scala = props.scala;
-
+  
   const resetImages = () => {
-    setIsEditing(false);
+    setEditingInterno(false);
   };
 
   const handleImageChange = (imageValue) => {
-    console.log("Estoy intentando cambiar la imagen");
+
     getFileSizeAndWidth(imageValue).then(({ width, height }) => {
       if (props.scala === undefined) {
         scala = 1;
@@ -70,7 +70,7 @@ const UploadAndDisplayImage = (props) => {
   return (
     <div>
       <div>
-        {selectedImage && !isEditing ? (
+        {(selectedImage)  ? (
           <Box style={{ position: "relative" }}>
             <img
               alt="Sin imagen"
@@ -87,7 +87,7 @@ const UploadAndDisplayImage = (props) => {
             </button>
           </Box>
         ) : null}
-        {!isEditing && !selectedImage ? (
+        {(!selectedImage && (!props.isEditing|| !isEditingInterno)) ? (
           <Box
             style={{
               width: props.size,
@@ -112,7 +112,7 @@ const UploadAndDisplayImage = (props) => {
             </IconButton>
           </Box>
         ) : null}
-        {isEditing ? (
+        {(isEditingInterno && props.isEditing && !selectedImage) ? (
           <Box style={{ position: "relative" }}>
             <img
               alt="Sin imagen"
@@ -121,8 +121,8 @@ const UploadAndDisplayImage = (props) => {
               style={{ borderRadius: 20 }}
               src={oldImage}
             />
-            <button onClick={() => resetImages(null)} style={styles.deleteBtn}>
-              Quitar
+            <button onClick={() => resetImages()} style={styles.deleteBtn}>
+              Quitar vieja Foto
             </button>
           </Box>
         ) : null}

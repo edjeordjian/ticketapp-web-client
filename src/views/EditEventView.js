@@ -66,13 +66,9 @@ export default function EditEventView() {
   const [questions, setQuestions] = React.useState([]);
   const [selectedWallpaper, setSelectedWallpaper] = React.useState(null);
   const [selectedFirstImage, setSelectedFirstImage] = React.useState(null);
-  const [oldFirstImage, setOldFirstImage] = React.useState(false);
   const [selectedSecondImage, setSelectedSecondImage] = React.useState(null);
-  const [oldSecondImage, setOldSecondImage] = React.useState(false);
   const [selectedThirdImage, setSelectedThirdImage] = React.useState(null);
-  const [oldThirdImage, setOldThirdImage] = React.useState(false);
   const [selectedFourthImage, setSelectedFourthImage] = React.useState(null);
-  const [oldFourthImage, setOldFourthImage] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const [events, setEvents] = React.useState([]);
   const [open, setOpen] = React.useState(false);
@@ -348,7 +344,7 @@ export default function EditEventView() {
       }
     });
   };
-  let test = false;
+
   React.useEffect(() => {
     getTo(
       `${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`,
@@ -380,7 +376,7 @@ export default function EditEventView() {
 
   const getEventData = async () => {
     const eventId = searchParams.get(EVENT_ID_PARAM);
-    await getTo(
+    getTo(
       `${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}?${EVENT_ID_PARAM}=${eventId}`,
       userToken
     ).then((response) => {
@@ -424,19 +420,15 @@ export default function EditEventView() {
       }
       if (response.pictures.length > 1) {
         definedImages.push(response.pictures[1]);
-        setOldFirstImage(true);
       }
       if (response.pictures.length > 2) {
         definedImages.push(response.pictures[2]);
-        setOldSecondImage(true);
       }
       if (response.pictures.length > 3) {
         definedImages.push(response.pictures[3]);
-        setOldThirdImage(true);
       }
       if (response.pictures.length > 4) {
         definedImages.push(response.pictures[4]);
-        setOldFourthImage(true);
       }
       setImages(definedImages);
       setLoading(false);
@@ -444,24 +436,18 @@ export default function EditEventView() {
   };
 
   React.useEffect(() => {
-    async function getData() {
-      await getTo(
-        `${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`,
-        userToken
-      )
-        .then((res) => {
-          if (res.error !== undefined) {
-            SweetAlert2.fire({
-              title: res.error,
-              icon: "error",
-            }).then();
-          } else {
-            setSelectableTypes(res.event_types);
-          }
-        })
-        .then(await getEventData);
-    }
-    getData()
+    getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`, userToken)
+      .then((res) => {
+        if (res.error !== undefined) {
+          SweetAlert2.fire({
+            title: res.error,
+            icon: "error",
+          }).then();
+        } else {
+          setSelectableTypes(res.event_types);
+        }
+      })
+      .then(getEventData);
   }, []);
 
   return (
@@ -474,8 +460,8 @@ export default function EditEventView() {
           size="100%"
           height="400px"
           setSelectedImage={setSelectedWallpaper}
-          oldImage={images[0]}
-          isEditing={true}
+          oldImage = {images[0]}
+          isEditing = {true}
         />
         <Typography variant="caption" display="block" gutterBottom>
           Resolucion recomendada 1920x1080. Tamaño requerido 1MB mínimo, 10MB
@@ -700,8 +686,8 @@ export default function EditEventView() {
                   size="300px"
                   height="300px"
                   setSelectedImage={setSelectedFirstImage}
-                  oldImage={images[1]}
-                  isEditing={oldFirstImage}
+                  oldImage = {images[1]}
+                  isEditing = {images.length>0 }
                 />
               </Grid>
 
@@ -710,8 +696,8 @@ export default function EditEventView() {
                   size="300px"
                   height="300px"
                   setSelectedImage={setSelectedSecondImage}
-                  oldImage={images[1]}
-                  isEditing={oldFirstImage}
+                  oldImage = {images[2]}
+                  isEditing = {images.length >2}
                 />
               </Grid>
 
@@ -720,8 +706,8 @@ export default function EditEventView() {
                   size="300px"
                   height="300px"
                   setSelectedImage={setSelectedThirdImage}
-                  oldImage={images[3]}
-                  isEditing={oldThirdImage}
+                  oldImage = {images[3]}
+                  isEditing = {images.length >3}
                 />
               </Grid>
 
@@ -730,8 +716,8 @@ export default function EditEventView() {
                   size="300px"
                   height="300px"
                   setSelectedImage={setSelectedFourthImage}
-                  oldImage={images[4]}
-                  isEditing={oldFourthImage}
+                  oldImage = {images[4]}
+                  isEditing = {images.length >4}
                 />
               </Grid>
             </Box>
