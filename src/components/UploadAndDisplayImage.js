@@ -122,7 +122,7 @@ const UploadAndDisplayImage = (props) => {
               src={oldImage}
             />
             <button onClick={() => resetImages()} style={styles.deleteBtn}>
-              Quitar vieja Foto
+              Quitar
             </button>
           </Box>
         ) : null}
