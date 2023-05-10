@@ -294,31 +294,18 @@ export default function EditEventView() {
 
     const eventPayload = {
       ownerId: userData.id,
-
       name: name,
-
       description: richDescription,
-
       capacity: capacity,
-
       types: typeIds,
-
       address: address,
-
       latitude: latitude,
-
       longitude: longitude,
-
       date: selectedDate !== null ? selectedDate.format("YYYY-MM-DD") : "",
-
       time: selectedTime !== null ? selectedTime.format("HH:mm") : "",
-
       pictures: pictures,
-
       agenda: events,
-
       faq: questions,
-
       status: status,
     };
 
@@ -373,7 +360,7 @@ export default function EditEventView() {
       setCenter({ lat: latitude, lng: longitude });
     }
   }, [latitude, longitude]);
-
+console.log(questions[0])
   const getEventData = async () => {
     const eventId = searchParams.get(EVENT_ID_PARAM);
     getTo(
@@ -656,10 +643,10 @@ export default function EditEventView() {
                     md={10}
                   >
                     <Typography sx={{ fontWeight: "bold" }}>
-                      P: {question[0]}
+                      P: {question.question}
                     </Typography>
                     <Typography sx={{ fontStyle: "italic" }}>
-                      R: {question[1]}
+                      R: {question.answer}
                     </Typography>
                   </Grid>
                   <IconButton
