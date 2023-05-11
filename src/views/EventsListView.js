@@ -41,74 +41,65 @@ const styles = {
     flex: "1",
   },
   textOverPublished: {
-    position: "relative",
-    top: -200,
+    position: "absolute",
+    right: 0,
     bottom: 0,
-    left: 1320,
-    backgroundColor: "green",
+    backgroundColor: "#A5C91B",
     borderRadius: "25px",
     padding: "10px 70px",
     color: "white",
     border: "none",
     fontSize: "16px",
-    textTransform: "capitalize",
-    display: "inline-block",
+    textTransform: "uppercase",
   },
   textOverDraft: {
-    position: "relative",
-    top: -200,
+    position: "absolute",
+    right: 0,
     bottom: 0,
-    left: 1320,
     backgroundColor: "grey",
     borderRadius: "25px",
     padding: "10px 70px",
     color: "white",
     border: "none",
     fontSize: "16px",
-    textTransform: "capitalize",
-    display: "inline-block",
+    marginRight: '15px',
+    textTransform: "uppercase",
   },
   textOverCancelled: {
-    position: "relative",
-    top: -200,
+    position: "absolute",
+    right: 0,
     bottom: 0,
-    left: 1320,
-    backgroundColor: "red",
+    backgroundColor: "#FF5F5F",
     borderRadius: "25px",
     padding: "10px 70px",
     color: "white",
     border: "none",
     fontSize: "16px",
-    textTransform: "capitalize",
-    display: "inline-block",
+    textTransform: "uppercase",
   },
   textOverSuspended: {
-    position: "relative",
-    top: -200,
+    position: "absolute",
+    right: 0,
     bottom: 0,
-    left: 1320,
-    backgroundColor: "yellow",
+    backgroundColor: "#f5e25f",
     borderRadius: "25px",
     padding: "10px 70px",
-    color: "white",
+    color: "#444",
     border: "none",
     fontSize: "16px",
-    textTransform: "capitalize",
-    display: "inline-block",
+    textTransform: "uppercase",
   },
   textOverFinalized: {
-    position: "relative",
-    top: -200,
+    position: "absolute",
+    right: 0,
     bottom: 0,
-    left: 1320,
-    backgroundColor: "yellow",
+    backgroundColor: "#444",
     borderRadius: "25px",
     padding: "10px 70px",
     color: "white",
     border: "none",
     fontSize: "16px",
-    textTransform: "capitalize",
-    display: "inline-block",
+    textTransform: "uppercase",
   },
 };
 
@@ -155,22 +146,24 @@ export default function EventsListView(props) {
           <Typography variant="h3" display="block">
             {source.name}
           </Typography>
-          <img
-            alt="Sin imagen"
-            width={"100%"}
-            height={"400px"}
-            style={{ borderRadius: 20, marginTop: "25px" }}
-            src={source.pictures ? source.pictures[0] : ""}
-          />
-          {source.state.name === FINISHED_STATUS_LBL && (
-            <h1 style={styles.textOverFinalized}>{source.state.name}</h1>
-          )}
-          {source.state.name === CANCELLED_STATUS_LBL && (
-            <h1 style={styles.textOverCancelled}>{source.state.name}</h1>
-          )}
-          {source.state.name === SUSPENDED_STATUS_LBL && (
-            <h1 style={styles.textOverSuspended}>{source.state.name}</h1>
-          )}
+          <div style={{width: '100%', height: "400px", position:"relative"}}>
+            <img
+              alt="Sin imagen"
+              width={"100%"}
+              height={"400px"}
+              style={{ borderRadius: 20, marginTop: "25px" }}
+              src={source.pictures ? source.pictures[0] : ""}
+            />
+            {source.state.name === FINISHED_STATUS_LBL && (
+              <h1 style={styles.textOverFinalized}>{source.state.name}</h1>
+            )}
+            {source.state.name === CANCELLED_STATUS_LBL && (
+              <h1 style={styles.textOverCancelled}>{source.state.name}</h1>
+            )}
+            {source.state.name === SUSPENDED_STATUS_LBL && (
+              <h1 style={styles.textOverSuspended}>{source.state.name}</h1>
+            )}
+          </div>
           <BlankLine />
         </a>
       );
@@ -185,19 +178,21 @@ export default function EventsListView(props) {
         <Typography variant="h3" display="block">
           {source.name}
         </Typography>
-        <img
-          alt="Sin imagen"
-          width={"100%"}
-          height={"400px"}
-          style={{ borderRadius: 20, marginTop: "25px" }}
-          src={source.pictures ? source.pictures[0] : ""}
-        />
-        {source.state.name === DRAFT_STATUS_LBL && (
-          <h1 style={styles.textOverDraft}>{source.state.name}</h1>
-        )}
-        {source.state.name === PUBLISHED_STATUS_LBL && (
-          <h1 style={styles.textOverPublished}>{source.state.name}</h1>
-        )}
+        <div style={{width: '100%', height: "400px", position:"relative"}}>
+          <img
+            alt="Sin imagen"
+            width={"100%"}
+            height={"400px"}
+            style={{ borderRadius: 20, marginTop: "25px" }}
+            src={source.pictures ? source.pictures[0] : ""}
+          />
+          {source.state.name === DRAFT_STATUS_LBL && (
+            <h1 style={styles.textOverDraft}>{source.state.name}</h1>
+          )}
+          {source.state.name === PUBLISHED_STATUS_LBL && (
+            <h1 style={styles.textOverPublished}>{source.state.name}</h1>
+          )}
+        </div>
         <BlankLine />
       </a>
     );
@@ -217,19 +212,16 @@ export default function EventsListView(props) {
           style={{
             display: "flex",
             width: "100%",
-            alignItems: "center",
+            justifyContent: "space-between",
+            
           }}
         >
-          <Box style={styles.btnContainer}>
-            <BasicBtn label={"Crear evento"} onClick={onCreateEventClicked} />
-          </Box>
+          <BasicBtn label={"Crear evento"} onClick={onCreateEventClicked} />
 
-          <Box style={{ marginLeft: "auto" }}>
-            <BasicBtn
+          <BasicBtn
               label={"Miembros de staff"}
               onClick={navigateToAddGroupMemberScreen}
             />
-          </Box>
         </div>
 
         <BlankLine />
