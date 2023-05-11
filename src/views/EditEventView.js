@@ -360,7 +360,6 @@ export default function EditEventView() {
       setCenter({ lat: latitude, lng: longitude });
     }
   }, [latitude, longitude]);
-console.log(questions[0])
   const getEventData = async () => {
     const eventId = searchParams.get(EVENT_ID_PARAM);
     getTo(
@@ -562,7 +561,7 @@ console.log(questions[0])
 
             <BlankLine />
 
-            <BasicDatePicker setSelectedDate={handleSelectedDate} />
+            <BasicDatePicker setSelectedDate={handleSelectedDate} oldDate={selectedDate}/>
 
             <BlankLine />
 
