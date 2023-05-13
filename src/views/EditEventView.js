@@ -5,7 +5,7 @@ import Typography from "@mui/material/Typography";
 import UploadAndDisplayImage from "../components/UploadAndDisplayImage";
 import BasicDatePicker from "../components/BasicDatePicker";
 import InputTags from "../components/TagField";
-import { getTo, postTo } from "../services/helpers/RequestHelper";
+import { getTo,patchTo } from "../services/helpers/RequestHelper";
 import {
   EVENT_TYPES_URL,
   EVENT_URL,
@@ -192,7 +192,7 @@ export default function EditEventView() {
 
   const handleAddQuestion = () => {
     if (questionField.value && answerField.value) {
-      setQuestions([...questions, [questionField.value, answerField.value]]);
+      setQuestions([...questions, {question: questionField.value, answer: answerField.value}]);
       questionField.value = "";
       answerField.value = "";
     } else {
@@ -309,7 +309,7 @@ export default function EditEventView() {
       status: status,
     };
 
-    postTo(
+    patchTo(
       `${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}`,
       eventPayload,
       userToken
@@ -446,8 +446,8 @@ export default function EditEventView() {
           size="100%"
           height="400px"
           setSelectedImage={setSelectedWallpaper}
-          oldImage = {images[0]}
-          isEditing = {true}
+          oldImage={images[0]}
+          isEditing={true}
         />
         <Typography variant="caption" display="block" gutterBottom>
           Resolucion recomendada 1920x1080. Tamaño requerido 1MB mínimo, 10MB
@@ -560,12 +560,15 @@ export default function EditEventView() {
             </Grid>
 
             <BlankLine />
-
-            <BasicDatePicker setSelectedDate={handleSelectedDate} oldDate={selectedDate}/>
-
+            <BasicDatePicker
+              setSelectedDate={handleSelectedDate}
+              oldDate={selectedDate}
+            />
             <BlankLine />
-
-            <BasicTimePicker setSelectedTime={handleSelectedTime} />
+            <BasicTimePicker
+              setSelectedTime={handleSelectedTime}
+              oldTime={selectedTime}
+            />
           </Grid>
 
           <BlankLine />
@@ -672,8 +675,8 @@ export default function EditEventView() {
                   size="300px"
                   height="300px"
                   setSelectedImage={setSelectedFirstImage}
-                  oldImage = {images[1]}
-                  isEditing = {images.length>0 }
+                  oldImage={images[1]}
+                  isEditing={images.length > 0}
                 />
               </Grid>
 
@@ -682,8 +685,8 @@ export default function EditEventView() {
                   size="300px"
                   height="300px"
                   setSelectedImage={setSelectedSecondImage}
-                  oldImage = {images[2]}
-                  isEditing = {images.length >2}
+                  oldImage={images[2]}
+                  isEditing={images.length > 2}
                 />
               </Grid>
 
@@ -692,8 +695,8 @@ export default function EditEventView() {
                   size="300px"
                   height="300px"
                   setSelectedImage={setSelectedThirdImage}
-                  oldImage = {images[3]}
-                  isEditing = {images.length >3}
+                  oldImage={images[3]}
+                  isEditing={images.length > 3}
                 />
               </Grid>
 
@@ -702,8 +705,8 @@ export default function EditEventView() {
                   size="300px"
                   height="300px"
                   setSelectedImage={setSelectedFourthImage}
-                  oldImage = {images[4]}
-                  isEditing = {images.length >4}
+                  oldImage={images[4]}
+                  isEditing={images.length > 4}
                 />
               </Grid>
             </Box>

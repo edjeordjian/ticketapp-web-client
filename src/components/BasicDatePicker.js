@@ -6,18 +6,25 @@ import "moment/locale/es";
 
 export default function BasicDatePicker(props) {
   moment.locale("es");
-  //No se como pasarle el props.oldDate porque se queja de que puede ser nulo.
-  const myMomentObject = moment("2019-08-10");
-  const [value, setValue] = React.useState(myMomentObject);
+  const [value, setValue] = React.useState(moment('2022-04-17'));
+
   const handleDateChange = (givenDate) => {
-    setValue(givenDate);
+    props.setSelectedDate(givenDate);
   };
+
+  if (props.oldDate === null) {
+    return (
+      <p>Cargando</p>
+    )
+  }
+  let oldDateFormated = moment(props.oldDate)
+
   return (
     <LocalizationProvider dateAdapter={AdapterMoment} locale={moment.locale()}>
       <DatePicker
         label="Elija una fecha"
-        value={value}
         onChange={handleDateChange}
+        value={oldDateFormated}
       />
     </LocalizationProvider>
   );
