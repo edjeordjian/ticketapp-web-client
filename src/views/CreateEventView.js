@@ -425,6 +425,11 @@ export default function CreateEventView() {
         lat: Number(latitude),
         lng: Number(longitude)
       });
+    } else {
+      setCenter({
+        lat: -34.61,
+        lng: -58.41
+      });
     }
   }, [latitude, longitude]);
   

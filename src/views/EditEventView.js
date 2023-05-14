@@ -53,35 +53,65 @@ import dayjs from "dayjs";
 
 export default function EditEventView() {
   const [name, setName] = React.useState("");
+
   const [images, setImages] = React.useState([]);
+
   const [searchParams, setSearchParams] = useSearchParams();
+
   const [organizerName, setOrganizerName] = React.useState("");
+
   const { getUserId, getUserData, getUserToken } = useMainContext();
+
   const [richDescription, setRichDescription] = React.useState("");
+
   const [capacity, setCapacity] = React.useState("");
+
   const [types, setTypes] = React.useState([]);
+
   const [selectableTypes, setSelectableTypes] = React.useState([]);
+
   const [loading, setLoading] = React.useState(true);
+
   const [selectedDate, setSelectedDate] = React.useState(null);
+
   const [selectedTime, setSelectedTime] = React.useState(null);
+
   const [address, setAddress] = React.useState("");
+
   const [questions, setQuestions] = React.useState([]);
+
   const [selectedWallpaper, setSelectedWallpaper] = React.useState(null);
+
   const [selectedFirstImage, setSelectedFirstImage] = React.useState(null);
+
   const [selectedSecondImage, setSelectedSecondImage] = React.useState(null);
+
   const [selectedThirdImage, setSelectedThirdImage] = React.useState(null);
+
   const [selectedFourthImage, setSelectedFourthImage] = React.useState(null);
+
   const [isLoading, setIsLoading] = React.useState(false);
+
   const [didGet, setDidGet] = React.useState(false);
+
   const [events, setEvents] = React.useState([]);
+
   const [open, setOpen] = React.useState(false);
+
   const [newEventTitle, setNewEventTitle] = React.useState("");
+
   const [newEventStart, setNewEventStart] = React.useState(null);
+
   const [newEventEnd, setNewEventEnd] = React.useState(null);
+
   const [userToken, setUserToken] = React.useState(getUserToken());
+
   const [latitude, setLatitude] = React.useState(0);
+
   const [longitude, setLongitude] = React.useState(0);
+
   const [center, setCenter] = React.useState(null);
+
   const navigate = useNavigate();
 
   const handleDateSelect = (selectInfo) => {
@@ -310,7 +340,7 @@ export default function EditEventView() {
       time: selectedTime !== null ? selectedTime.format("HH:mm") : "",
       pictures: pictures,
       agenda: events,
-      faq: questions,
+      faq: questions.map(x => [x.question, x.answer]),
       status: status,
     };
 
