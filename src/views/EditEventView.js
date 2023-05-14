@@ -5,7 +5,7 @@ import Typography from "@mui/material/Typography";
 import UploadAndDisplayImage from "../components/UploadAndDisplayImage";
 import BasicDatePicker from "../components/BasicDatePicker";
 import InputTags from "../components/TagField";
-import { getTo,patchTo } from "../services/helpers/RequestHelper";
+import { getTo, patchTo } from "../services/helpers/RequestHelper";
 import {
   EVENT_TYPES_URL,
   EVENT_URL,
@@ -15,7 +15,10 @@ import {
 import { IconButton } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import { turnDateStringToToday, turnDateToMomentFormat } from "../services/helpers/DateService";
+import {
+  turnDateStringToToday,
+  turnDateToMomentFormat,
+} from "../services/helpers/DateService";
 import { BlankLine } from "../components/BlankLine";
 import "react-quill/dist/quill.snow.css";
 import { getKeys } from "../services/helpers/JsonHelpers";
@@ -36,7 +39,9 @@ import {
   IMAGE_TOO_SMALL_ERR_LBL,
   UPLOAD_IMAGE_ERR_LBL,
   PUBLISHED_STATUS_LBL,
-  DRAFT_STATUS_LBL, GET_EVENT_ERROR, UPDATED_EVENT_LBL
+  DRAFT_STATUS_LBL,
+  GET_EVENT_ERROR,
+  UPDATED_EVENT_LBL,
 } from "../constants/EventConstants";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { uploadFile } from "../services/helpers/CloudStorageService";
@@ -111,6 +116,10 @@ export default function EditEventView() {
   const [longitude, setLongitude] = React.useState(0);
 
   const [center, setCenter] = React.useState(null);
+
+  const [status, setStatus] = React.useState(null);
+
+  const [sendNotification, setSendNotification] = React.useState(false);
 
   const navigate = useNavigate();
 
@@ -193,6 +202,8 @@ export default function EditEventView() {
   };
 
   const handleNameChange = (event) => {
+    setSendNotification(true);
+
     setName(event.target.value);
   };
 
@@ -209,15 +220,22 @@ export default function EditEventView() {
   };
 
   const handleSelectedDate = (value) => {
+    setSendNotification(true);
+
     setSelectedDate(value);
   };
 
   const handleSelectedTime = (value) => {
+    setSendNotification(true);
+
     setSelectedTime(value);
   };
 
   const onPlaceChanged = (placeSelected) => {
+    setSendNotification(true);
+
     setAddress(placeSelected.label);
+
     geocodeByPlaceId(placeSelected.value.place_id).then((results) => {
       setLatitude(results[0].geometry.location.lat());
       setLongitude(results[0].geometry.location.lng());
@@ -226,9 +244,13 @@ export default function EditEventView() {
 
   const handleAddQuestion = () => {
     if (questionField.value && answerField.value) {
-      setQuestions([...questions, {question: questionField.value, answer: answerField.value}]);
+      setQuestions([
+        ...questions,
+        { question: questionField.value, answer: answerField.value },
+      ]);
       questionField.value = "";
       answerField.value = "";
+      setSendNotification(true);
     } else {
       SweetAlert2.fire({
         title: "Es necesario completar pregunta y respuesta",
@@ -242,6 +264,7 @@ export default function EditEventView() {
   const handleRemoveQuestion = async (index) => {
     questions.splice(index, 1);
     setQuestions([...questions]);
+    setSendNotification(true);
   };
 
   const handleSubmit = async (event, status) => {
@@ -340,8 +363,9 @@ export default function EditEventView() {
       time: selectedTime !== null ? selectedTime.format("HH:mm") : "",
       pictures: pictures,
       agenda: events,
-      faq: questions.map(x => [x.question, x.answer]),
+      faq: questions.map((x) => [x.question, x.answer]),
       status: status,
+      sendNotification: sendNotification
     };
 
     patchTo(
@@ -386,14 +410,14 @@ export default function EditEventView() {
       setRichDescription(response.description);
       setCapacity(response.capacity);
       setTypes(response.types_names);
-      setSelectedDate( moment( turnDateToMomentFormat(response.date) ) );
-      setSelectedTime( dayjs(response.time, `H:mm`) );
+      setSelectedDate(moment(turnDateToMomentFormat(response.date)));
+      setSelectedTime(dayjs(response.time, `H:mm`));
       setAddress(response.address);
       setOrganizerName(response.organizerName);
       setQuestions(response.faq);
       setLatitude(response.latitude);
       setLongitude(response.longitude);
-
+      setStatus(response.state.name);
       const mappedSpaces = response.agenda.map((space) => {
         return {
           title: space.title,
@@ -431,7 +455,7 @@ export default function EditEventView() {
     if (latitude && longitude) {
       setCenter({
         lat: Number(latitude),
-        lng: Number(longitude)
+        lng: Number(longitude),
       });
     }
   }, [latitude, longitude]);
@@ -503,7 +527,7 @@ export default function EditEventView() {
 
             <BlankLine />
 
-            { (address) ? (
+            {address ? (
               <GooglePlacesAutocomplete
                 selectProps={{
                   placeholder: address,
@@ -791,18 +815,20 @@ export default function EditEventView() {
             variant="contained"
             onClick={(event) => handleSubmit(event, PUBLISHED_STATUS_LBL)}
             loading={isLoading.toString()}
-            label={isLoading ? "Cargando..." : "Crear evento"}
+            label={isLoading ? "Cargando..." : "Publicar"}
             disabled={isLoading}
             color="green"
           />
-          <BasicBtn
-            type={"button"}
-            variant="contained"
-            onClick={(event) => handleSubmit(event, DRAFT_STATUS_LBL)}
-            loading={isLoading.toString()}
-            label={isLoading ? "Cargando..." : "Guardar"}
-            disabled={isLoading}
-          />
+          {status === DRAFT_STATUS_LBL && (
+            <BasicBtn
+              type={"button"}
+              variant="contained"
+              onClick={(event) => handleSubmit(event, DRAFT_STATUS_LBL)}
+              loading={isLoading.toString()}
+              label={isLoading ? "Cargando..." : "Guardar borrador"}
+              disabled={isLoading}
+            />
+          )}
         </Grid>
       </Box>
     </main>

@@ -189,7 +189,7 @@ export default function EventsListView(props) {
       event.preventDefault();
 
       const payload = {
-        event_id: id,
+        eventId: id,
         suspended: false,
       };
 
@@ -242,7 +242,7 @@ export default function EventsListView(props) {
           {source.state.name === DRAFT_STATUS_LBL && (
             <div style={styles.deleteButton}>
               <IconButton
-                color="primary"
+                color="error"
                 aria-label="upload picture"
                 component="label"
                 size="large"
