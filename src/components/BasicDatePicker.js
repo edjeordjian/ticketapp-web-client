@@ -19,7 +19,7 @@ export default function BasicDatePicker(props) {
       <p>Cargando</p>
     )
   } else if (props.oldDate) {
-    oldDateFormated = moment(turnDateToMomentFormat(props.oldDate));
+    oldDateFormated = props.oldDate;
   }
 
   return (

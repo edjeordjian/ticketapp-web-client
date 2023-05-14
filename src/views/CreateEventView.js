@@ -420,13 +420,11 @@ export default function CreateEventView() {
   }, []);
 
   React.useEffect(() => {
-    if (!latitude && !longitude) {
+    if (latitude && longitude) {
       setCenter({
-        lat: -34.61,
-        lng: -58.41,
+        lat: Number(latitude),
+        lng: Number(longitude)
       });
-    } else {
-      setCenter({ lat: latitude, lng: longitude });
     }
   }, [latitude, longitude]);
   

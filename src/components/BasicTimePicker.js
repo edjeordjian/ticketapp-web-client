@@ -16,7 +16,7 @@ export default function BasicTimePicker(props) {
       <p>Cargando</p>
     )
   } else if (props.oldTime) {
-      oldTimeFormatted = dayjs(props.oldTime, `H:mm`);
+      oldTimeFormatted = props.oldTime;
   }
 
   return (

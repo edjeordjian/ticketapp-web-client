@@ -23,7 +23,7 @@ const MenuProps = {
 export default function TagField(props) {
   const [types, setTypes] = React.useState(props.selectableTypes);
 
-  const [selectedValues, setSelectedValues] = React.useState([]);
+  const [selectedValues, setSelectedValues] = React.useState(props.selectedTypes ? props.selectedTypes : []);
 
   React.useEffect(() => {
     if (selectedValues.length > 0) {

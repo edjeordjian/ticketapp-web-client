@@ -15,7 +15,7 @@ import {
 import { IconButton } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import { turnDateStringToToday } from "../services/helpers/DateService";
+import { turnDateStringToToday, turnDateToMomentFormat } from "../services/helpers/DateService";
 import { BlankLine } from "../components/BlankLine";
 import "react-quill/dist/quill.snow.css";
 import { getKeys } from "../services/helpers/JsonHelpers";
@@ -36,7 +36,7 @@ import {
   IMAGE_TOO_SMALL_ERR_LBL,
   UPLOAD_IMAGE_ERR_LBL,
   PUBLISHED_STATUS_LBL,
-  DRAFT_STATUS_LBL, GET_EVENT_ERROR
+  DRAFT_STATUS_LBL, GET_EVENT_ERROR, UPDATED_EVENT_LBL
 } from "../constants/EventConstants";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { uploadFile } from "../services/helpers/CloudStorageService";
@@ -48,13 +48,15 @@ import BasicBtn from "../components/BasicBtn";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import { geocodeByPlaceId } from "react-google-places-autocomplete";
 import { GoogleMap, MarkerF } from "@react-google-maps/api";
+import moment from "moment";
+import dayjs from "dayjs";
 
 export default function EditEventView() {
   const [name, setName] = React.useState("");
   const [images, setImages] = React.useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
   const [organizerName, setOrganizerName] = React.useState("");
-  const { getUserId, getUserToken } = useMainContext();
+  const { getUserId, getUserData, getUserToken } = useMainContext();
   const [richDescription, setRichDescription] = React.useState("");
   const [capacity, setCapacity] = React.useState("");
   const [types, setTypes] = React.useState([]);
@@ -81,6 +83,7 @@ export default function EditEventView() {
   const [longitude, setLongitude] = React.useState(0);
   const [center, setCenter] = React.useState(null);
   const navigate = useNavigate();
+
   const handleDateSelect = (selectInfo) => {
     setOpen(true);
     setNewEventStart(selectInfo.startStr);
@@ -294,6 +297,7 @@ export default function EditEventView() {
     const userData = getUserData();
 
     const eventPayload = {
+      id: searchParams.get(EVENT_ID_PARAM),
       ownerId: userData.id,
       name: name,
       description: richDescription,
@@ -325,7 +329,7 @@ export default function EditEventView() {
       } else {
         SweetAlert2.fire({
           icon: "info",
-          title: CREATED_EVENT_LBL,
+          title: UPDATED_EVENT_LBL,
         }).then((res) => {
           navigate(EVENTS_PATH);
         });
@@ -333,34 +337,6 @@ export default function EditEventView() {
     });
   };
 
-  React.useEffect(() => {
-    getTo(
-      `${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`,
-      userToken
-    ).then((res) => {
-      if (res.error !== undefined) {
-        SweetAlert2.fire({
-          title: res.error,
-          icon: "error",
-        }).then();
-      } else {
-        setSelectableTypes(res.event_types);
-      }
-
-      setLoading(false);
-    });
-  }, []);
-
-  React.useEffect(() => {
-    if (!latitude && !longitude) {
-      setCenter({
-        lat: -34.61,
-        lng: -58.41,
-      });
-    } else {
-      setCenter({ lat: latitude, lng: longitude });
-    }
-  }, [latitude, longitude]);
   const getEventData = async () => {
     const eventId = searchParams.get(EVENT_ID_PARAM);
     getTo(
@@ -380,17 +356,13 @@ export default function EditEventView() {
       setRichDescription(response.description);
       setCapacity(response.capacity);
       setTypes(response.types_names);
-      setSelectedDate(response.date);
-      setSelectedTime(response.time);
+      setSelectedDate( moment( turnDateToMomentFormat(response.date) ) );
+      setSelectedTime( dayjs(response.time, `H:mm`) );
       setAddress(response.address);
       setOrganizerName(response.organizerName);
       setQuestions(response.faq);
-      if (response.latitude && response.longitude) {
-        setCenter({
-          lat: Number(response.latitude),
-          lng: Number(response.longitude),
-        });
-      }
+      setLatitude(response.latitude);
+      setLongitude(response.longitude);
 
       const mappedSpaces = response.agenda.map((space) => {
         return {
@@ -424,6 +396,15 @@ export default function EditEventView() {
       setDidGet(true);
     });
   };
+
+  React.useEffect(() => {
+    if (latitude && longitude) {
+      setCenter({
+        lat: Number(latitude),
+        lng: Number(longitude)
+      });
+    }
+  }, [latitude, longitude]);
 
   React.useEffect(() => {
     getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`, userToken)
@@ -492,10 +473,10 @@ export default function EditEventView() {
 
             <BlankLine />
 
-            {true ? (
+            { (address) ? (
               <GooglePlacesAutocomplete
                 selectProps={{
-                  placeholder: "Escriba una dirección",
+                  placeholder: address,
                   onChange: onPlaceChanged,
                 }}
                 autocompletionRequest={{

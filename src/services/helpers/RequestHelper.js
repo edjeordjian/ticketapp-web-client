@@ -59,5 +59,5 @@ const getTo = (url, token) => {
 };
 
 export {
-    postTo, getTo,patchTo
+    postTo, getTo, patchTo
 };
