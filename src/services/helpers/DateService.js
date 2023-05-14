@@ -22,6 +22,12 @@ const turnDateStringToToday = (dateString, end = false) => {
     return dateString.replace(/^.{10}/, todayString);
 };
 
+const turnDateToMomentFormat = (dateString) => {
+    const [day, month, year] = dateString.split("/");
+
+    return `${year}-${month}-${day}`;
+}
+
 export {
-    turnDateStringToToday
+    turnDateStringToToday, turnDateToMomentFormat
 };

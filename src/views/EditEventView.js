@@ -36,7 +36,7 @@ import {
   IMAGE_TOO_SMALL_ERR_LBL,
   UPLOAD_IMAGE_ERR_LBL,
   PUBLISHED_STATUS_LBL,
-  DRAFT_STATUS_LBL,
+  DRAFT_STATUS_LBL, GET_EVENT_ERROR
 } from "../constants/EventConstants";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { uploadFile } from "../services/helpers/CloudStorageService";
@@ -70,6 +70,7 @@ export default function EditEventView() {
   const [selectedThirdImage, setSelectedThirdImage] = React.useState(null);
   const [selectedFourthImage, setSelectedFourthImage] = React.useState(null);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [didGet, setDidGet] = React.useState(false);
   const [events, setEvents] = React.useState([]);
   const [open, setOpen] = React.useState(false);
   const [newEventTitle, setNewEventTitle] = React.useState("");
@@ -417,7 +418,10 @@ export default function EditEventView() {
         definedImages.push(response.pictures[4]);
       }
       setImages(definedImages);
+
       setLoading(false);
+
+      setDidGet(true);
     });
   };
 
@@ -563,11 +567,13 @@ export default function EditEventView() {
             <BasicDatePicker
               setSelectedDate={handleSelectedDate}
               oldDate={selectedDate}
+              didGet={didGet}
             />
             <BlankLine />
             <BasicTimePicker
               setSelectedTime={handleSelectedTime}
               oldTime={selectedTime}
+              didGet={didGet}
             />
           </Grid>
 

@@ -164,6 +164,7 @@ export default function EventsListView(props) {
               <h1 style={styles.textOverSuspended}>{source.state.name}</h1>
             )}
           </div>
+
           <BlankLine />
         </a>
       );
@@ -193,7 +194,8 @@ export default function EventsListView(props) {
             <h1 style={styles.textOverPublished}>{source.state.name}</h1>
           )}
         </div>
-        <BlankLine />
+
+        <BlankLine number={2}/>
       </a>
     );
   };

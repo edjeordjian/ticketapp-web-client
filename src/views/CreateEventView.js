@@ -553,11 +553,13 @@ export default function CreateEventView() {
 
             <BlankLine />
 
-            <BasicDatePicker setSelectedDate={handleSelectedDate} />
+            <BasicDatePicker setSelectedDate={handleSelectedDate}
+                             didGet={true}/>
 
             <BlankLine />
 
-            <BasicTimePicker setSelectedTime={handleSelectedTime} />
+            <BasicTimePicker setSelectedTime={handleSelectedTime}
+                             didGet={true}/>
           </Grid>
 
           <BlankLine />
