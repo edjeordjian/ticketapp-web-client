@@ -23,7 +23,7 @@ import {
   SUSPENDED_STATUS_LBL,
   FINISHED_STATUS_LBL,
   PUBLISHED_STATUS_LBL,
-  EVENT_DELETED
+  EVENT_DELETED,
 } from "../constants/EventConstants";
 import * as SweetAlert2 from "sweetalert2";
 import { useMainContext } from "../services/contexts/MainContext";
@@ -110,7 +110,7 @@ const styles = {
     position: "absolute",
     right: 0,
     bottom: 300,
-    zIndex:200
+    zIndex: 200,
   },
 };
 
@@ -148,47 +148,51 @@ export default function EventsListView(props) {
       source.state.name === SUSPENDED_STATUS_LBL
     ) {
       return (
-        <a
-          onClick={() =>
-            navigate(`${EVENT_VIEW_PATH}?${EVENT_ID_PARAM}=${source.id}`)
-          }
-          key={source.id}
-        >
+        <div>
           <Typography variant="h3" display="block">
             {source.name}
           </Typography>
-          <div style={{ width: "100%", height: "400px", position: "relative" }}>
-            <img
-              alt="Sin imagen"
-              width={"100%"}
-              height={"400px"}
-              style={{ borderRadius: 20, marginTop: "25px", zIndex:1 }}
-              src={source.pictures ? source.pictures[0] : ""}
-            />
-            {source.state.name === FINISHED_STATUS_LBL && (
-              <h1 style={styles.textOverFinalized}>{source.state.name}</h1>
-            )}
-            {source.state.name === CANCELLED_STATUS_LBL && (
-              <h1 style={styles.textOverCancelled}>{source.state.name}</h1>
-            )}
-            {source.state.name === SUSPENDED_STATUS_LBL && (
-              <h1 style={styles.textOverSuspended}>{source.state.name}</h1>
-            )}
-          </div>
+          <a
+            onClick={() =>
+              navigate(`${EVENT_VIEW_PATH}?${EVENT_ID_PARAM}=${source.id}`)
+            }
+            key={source.id}
+          >
+            <div
+              style={{ width: "100%", height: "400px", position: "relative" }}
+            >
+              <img
+                alt="Sin imagen"
+                width={"100%"}
+                height={"400px"}
+                style={{ borderRadius: 20, marginTop: "25px", zIndex: 1 }}
+                src={source.pictures ? source.pictures[0] : ""}
+              />
+              {source.state.name === FINISHED_STATUS_LBL && (
+                <h1 style={styles.textOverFinalized}>{source.state.name}</h1>
+              )}
+              {source.state.name === CANCELLED_STATUS_LBL && (
+                <h1 style={styles.textOverCancelled}>{source.state.name}</h1>
+              )}
+              {source.state.name === SUSPENDED_STATUS_LBL && (
+                <h1 style={styles.textOverSuspended}>{source.state.name}</h1>
+              )}
+            </div>
 
-          <BlankLine />
-        </a>
+            <BlankLine />
+          </a>
+        </div>
       );
     }
 
-    const handleSubmit = async (event,id) => {
+    const handleSubmit = async (event, id) => {
       event.preventDefault();
-  
+
       const payload = {
-       event_id: id,
-       suspended:false
+        event_id: id,
+        suspended: false,
       };
-  
+
       postTo(
         `${process.env.REACT_APP_BACKEND_HOST}${CANCEL_EVENT}`,
         payload,
@@ -205,29 +209,33 @@ export default function EventsListView(props) {
             title: EVENT_DELETED,
           }).then((_res) => {
             navigate(EVENTS_PATH);
+            window.location.reload(false);
           });
         }
       });
     };
 
     return (
-      <a
-        onClick={() =>
-          navigate(`${EVENT_EDIT_PATH}?${EVENT_ID_PARAM}=${source.id}`)
-        }
-        key={source.id}
-      >
+      <div>
         <Typography variant="h3" display="block">
           {source.name}
         </Typography>
+
         <div style={{ width: "100%", height: "400px", position: "relative" }}>
-          <img
-            alt="Sin imagen"
-            width={"100%"}
-            height={"400px"}
-            style={{ borderRadius: 20, marginTop: "25px",zIndex:1 }}
-            src={source.pictures ? source.pictures[0] : ""}
-          />
+          <a
+            onClick={() =>
+              navigate(`${EVENT_EDIT_PATH}?${EVENT_ID_PARAM}=${source.id}`)
+            }
+            key={source.id}
+          >
+            <img
+              alt="Sin imagen"
+              width={"100%"}
+              height={"400px"}
+              style={{ borderRadius: 20, marginTop: "25px", zIndex: 1 }}
+              src={source.pictures ? source.pictures[0] : ""}
+            />
+          </a>
           {source.state.name === DRAFT_STATUS_LBL && (
             <h1 style={styles.textOverDraft}>{source.state.name}</h1>
           )}
@@ -240,7 +248,7 @@ export default function EventsListView(props) {
                 size="large"
                 onClick={(event) => handleSubmit(event, source.id)}
               >
-                <DeleteIcon fontSize="inherit" size="large"/>
+                <DeleteIcon fontSize="inherit" size="large" />
               </IconButton>
             </div>
           )}
@@ -250,7 +258,7 @@ export default function EventsListView(props) {
         </div>
 
         <BlankLine number={2} />
-      </a>
+      </div>
     );
   };
 
