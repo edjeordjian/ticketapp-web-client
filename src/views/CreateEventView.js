@@ -766,7 +766,7 @@ export default function CreateEventView() {
             variant="contained"
             onClick={(event) => handleSubmit(event, PUBLISHED_STATUS_LBL)}
             loading={isLoading.toString()}
-            label={isLoading ? "Cargando..." : "Crear evento"}
+            label={isLoading ? "Cargando..." : "Publicar"}
             disabled={isLoading}
             color="green"
           />
@@ -775,7 +775,7 @@ export default function CreateEventView() {
             variant="contained"
             onClick={(event) => handleSubmit(event, DRAFT_STATUS_LBL)}
             loading={isLoading.toString()}
-            label={isLoading ? "Cargando..." : "Guardar"}
+            label={isLoading ? "Cargando..." : "Guardar borrador"}
             disabled={isLoading}
           />
         </Grid>
