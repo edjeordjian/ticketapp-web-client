@@ -119,6 +119,8 @@ export default function EditEventView() {
 
   const [status, setStatus] = React.useState(null);
 
+  const [sendNotification, setSendNotification] = React.useState(false);
+
   const navigate = useNavigate();
 
   const handleDateSelect = (selectInfo) => {
@@ -200,6 +202,8 @@ export default function EditEventView() {
   };
 
   const handleNameChange = (event) => {
+    setSendNotification(true);
+
     setName(event.target.value);
   };
 
@@ -216,15 +220,22 @@ export default function EditEventView() {
   };
 
   const handleSelectedDate = (value) => {
+    setSendNotification(true);
+
     setSelectedDate(value);
   };
 
   const handleSelectedTime = (value) => {
+    setSendNotification(true);
+
     setSelectedTime(value);
   };
 
   const onPlaceChanged = (placeSelected) => {
+    setSendNotification(true);
+
     setAddress(placeSelected.label);
+
     geocodeByPlaceId(placeSelected.value.place_id).then((results) => {
       setLatitude(results[0].geometry.location.lat());
       setLongitude(results[0].geometry.location.lng());
@@ -239,6 +250,7 @@ export default function EditEventView() {
       ]);
       questionField.value = "";
       answerField.value = "";
+      setSendNotification(true);
     } else {
       SweetAlert2.fire({
         title: "Es necesario completar pregunta y respuesta",
@@ -252,6 +264,7 @@ export default function EditEventView() {
   const handleRemoveQuestion = async (index) => {
     questions.splice(index, 1);
     setQuestions([...questions]);
+    setSendNotification(true);
   };
 
   const handleSubmit = async (event, status) => {
@@ -352,6 +365,7 @@ export default function EditEventView() {
       agenda: events,
       faq: questions.map((x) => [x.question, x.answer]),
       status: status,
+      sendNotification: sendNotification
     };
 
     patchTo(
