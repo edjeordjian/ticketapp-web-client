@@ -5,13 +5,17 @@ import Typography from "@mui/material/Typography";
 import UploadAndDisplayImage from "../components/UploadAndDisplayImage";
 import BasicDatePicker from "../components/BasicDatePicker";
 import InputTags from "../components/TagField";
-
-import { getTo, postTo } from "../services/helpers/RequestHelper";
-import { EVENT_TYPES_URL, EVENT_URL, EVENTS_PATH } from "../constants/URLs";
+import { getTo,patchTo } from "../services/helpers/RequestHelper";
+import {
+  EVENT_TYPES_URL,
+  EVENT_URL,
+  EVENTS_PATH,
+  EVENT_ID_PARAM,
+} from "../constants/URLs";
 import { IconButton } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-
+import { turnDateStringToToday, turnDateToMomentFormat } from "../services/helpers/DateService";
 import { BlankLine } from "../components/BlankLine";
 import "react-quill/dist/quill.snow.css";
 import { getKeys } from "../services/helpers/JsonHelpers";
@@ -19,7 +23,6 @@ import BasicTimePicker from "../components/BasicTimePicker";
 import ReactQuill from "react-quill";
 import { createEventStyle as createEventStyles } from "../styles/events/CreateEventStyle";
 import SweetAlert2 from "sweetalert2";
-
 import {
   Button,
   Dialog,
@@ -28,34 +31,36 @@ import {
   DialogTitle,
   TextField,
 } from "@mui/material";
-
 import {
   CREATED_EVENT_LBL,
   IMAGE_TOO_SMALL_ERR_LBL,
-  MAPS_KEY,
   UPLOAD_IMAGE_ERR_LBL,
   PUBLISHED_STATUS_LBL,
-  DRAFT_STATUS_LBL
+  DRAFT_STATUS_LBL, GET_EVENT_ERROR, UPDATED_EVENT_LBL
 } from "../constants/EventConstants";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { uploadFile } from "../services/helpers/CloudStorageService";
-
 import FullCalendar from "@fullcalendar/react";
 import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
-
 import { useMainContext } from "../services/contexts/MainContext";
 import BasicBtn from "../components/BasicBtn";
-
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
-
 import { geocodeByPlaceId } from "react-google-places-autocomplete";
-
 import { GoogleMap, MarkerF } from "@react-google-maps/api";
+import moment from "moment";
+import dayjs from "dayjs";
 
-export default function CreateEventView() {
-  
+export default function EditEventView() {
   const [name, setName] = React.useState("");
+
+  const [images, setImages] = React.useState([]);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [organizerName, setOrganizerName] = React.useState("");
+
+  const { getUserId, getUserData, getUserToken } = useMainContext();
 
   const [richDescription, setRichDescription] = React.useState("");
 
@@ -87,6 +92,8 @@ export default function CreateEventView() {
 
   const [isLoading, setIsLoading] = React.useState(false);
 
+  const [didGet, setDidGet] = React.useState(false);
+
   const [events, setEvents] = React.useState([]);
 
   const [open, setOpen] = React.useState(false);
@@ -96,8 +103,6 @@ export default function CreateEventView() {
   const [newEventStart, setNewEventStart] = React.useState(null);
 
   const [newEventEnd, setNewEventEnd] = React.useState(null);
-
-  const { getUserData, getUserToken } = useMainContext();
 
   const [userToken, setUserToken] = React.useState(getUserToken());
 
@@ -114,14 +119,12 @@ export default function CreateEventView() {
     setNewEventStart(selectInfo.startStr);
     setNewEventEnd(selectInfo.endStr);
   };
-
   const handleDialogClose = () => {
     setOpen(false);
     setNewEventTitle("");
     setNewEventStart(null);
     setNewEventEnd(null);
   };
-
   const handleAddEvent = () => {
     if (events.filter((event) => event.title === newEventTitle).length !== 0) {
       SweetAlert2.fire({
@@ -165,37 +168,27 @@ export default function CreateEventView() {
 
   const handleEventDrop = (eventDropInfo) => {
     const { event, delta } = eventDropInfo;
-
     const index = events.findIndex((e) => e.title === event.title);
-
     const updatedEvent = {
       title: event.title,
       start: event.start.toISOString(),
       end: event.end.toISOString(),
     };
-
     const newEvents = [...events];
-
     newEvents[index] = updatedEvent;
-
     setEvents(newEvents);
   };
 
   const handleEventResize = (eventResizeInfo) => {
     const { event } = eventResizeInfo;
-
     const index = events.findIndex((e) => e.title === event.title);
-
     const updatedEvent = {
       title: event.title,
       start: event.start.toISOString(),
       end: event.end.toISOString(),
     };
-
     const newEvents = [...events];
-
     newEvents[index] = updatedEvent;
-
     setEvents(newEvents);
   };
 
@@ -225,17 +218,15 @@ export default function CreateEventView() {
 
   const onPlaceChanged = (placeSelected) => {
     setAddress(placeSelected.label);
-
     geocodeByPlaceId(placeSelected.value.place_id).then((results) => {
       setLatitude(results[0].geometry.location.lat());
-
       setLongitude(results[0].geometry.location.lng());
     });
   };
 
   const handleAddQuestion = () => {
     if (questionField.value && answerField.value) {
-      setQuestions([...questions, [questionField.value, answerField.value]]);
+      setQuestions([...questions, {question: questionField.value, answer: answerField.value}]);
       questionField.value = "";
       answerField.value = "";
     } else {
@@ -255,39 +246,30 @@ export default function CreateEventView() {
 
   const handleSubmit = async (event, status) => {
     event.preventDefault();
-
     const typeIds = getKeys(types, selectableTypes);
-
     let wallpaper, image1, image2, image3, image4;
-
     const pictures = [];
-
     try {
       setIsLoading(true);
-
       if (selectedWallpaper) {
         wallpaper = await uploadFile(selectedWallpaper, selectedWallpaper.name);
-
         if (!wallpaper) {
           return SweetAlert2.fire({
             title: IMAGE_TOO_SMALL_ERR_LBL,
             icon: "error",
           }).then();
         }
-
         pictures.push(wallpaper);
       }
 
       if (selectedFirstImage) {
         image1 = await uploadFile(selectedFirstImage, selectedFirstImage.name);
-
         if (!image1) {
           return SweetAlert2.fire({
             title: IMAGE_TOO_SMALL_ERR_LBL,
             icon: "error",
           }).then();
         }
-
         pictures.push(image1);
       }
 
@@ -296,27 +278,23 @@ export default function CreateEventView() {
           selectedSecondImage,
           selectedSecondImage.name
         );
-
         if (!image2) {
           return SweetAlert2.fire({
             title: IMAGE_TOO_SMALL_ERR_LBL,
             icon: "error",
           }).then();
         }
-
         pictures.push(image2);
       }
 
       if (selectedThirdImage) {
         image3 = await uploadFile(selectedThirdImage, selectedThirdImage.name);
-
         if (!image3) {
           return SweetAlert2.fire({
             title: IMAGE_TOO_SMALL_ERR_LBL,
             icon: "error",
           }).then();
         }
-
         pictures.push(image3);
       }
 
@@ -349,36 +327,24 @@ export default function CreateEventView() {
     const userData = getUserData();
 
     const eventPayload = {
+      id: searchParams.get(EVENT_ID_PARAM),
       ownerId: userData.id,
-
       name: name,
-
       description: richDescription,
-
       capacity: capacity,
-
       types: typeIds,
-
       address: address,
-
       latitude: latitude,
-
       longitude: longitude,
-
       date: selectedDate !== null ? selectedDate.format("YYYY-MM-DD") : "",
-
       time: selectedTime !== null ? selectedTime.format("HH:mm") : "",
-
       pictures: pictures,
-
       agenda: events,
-
-      faq: questions,
-
+      faq: questions.map(x => [x.question, x.answer]),
       status: status,
     };
 
-    postTo(
+    patchTo(
       `${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}`,
       eventPayload,
       userToken
@@ -393,7 +359,7 @@ export default function CreateEventView() {
       } else {
         SweetAlert2.fire({
           icon: "info",
-          title: CREATED_EVENT_LBL,
+          title: UPDATED_EVENT_LBL,
         }).then((res) => {
           navigate(EVENTS_PATH);
         });
@@ -401,23 +367,65 @@ export default function CreateEventView() {
     });
   };
 
-  React.useEffect(() => {
+  const getEventData = async () => {
+    const eventId = searchParams.get(EVENT_ID_PARAM);
     getTo(
-      `${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`,
+      `${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}?${EVENT_ID_PARAM}=${eventId}`,
       userToken
-    ).then((res) => {
-      if (res.error !== undefined) {
+    ).then((response) => {
+      if (response.error) {
         SweetAlert2.fire({
-          title: res.error,
+          title: GET_EVENT_ERROR,
           icon: "error",
         }).then();
-      } else {
-        setSelectableTypes(res.event_types);
+        setLoading(false);
+        return;
       }
 
+      setName(response.name);
+      setRichDescription(response.description);
+      setCapacity(response.capacity);
+      setTypes(response.types_names);
+      setSelectedDate( moment( turnDateToMomentFormat(response.date) ) );
+      setSelectedTime( dayjs(response.time, `H:mm`) );
+      setAddress(response.address);
+      setOrganizerName(response.organizerName);
+      setQuestions(response.faq);
+      setLatitude(response.latitude);
+      setLongitude(response.longitude);
+
+      const mappedSpaces = response.agenda.map((space) => {
+        return {
+          title: space.title,
+          start: turnDateStringToToday(space.start),
+          end: turnDateStringToToday(space.end, true),
+        };
+      });
+
+      setEvents(mappedSpaces);
+      const definedImages = [];
+      if (response.pictures.length > 0) {
+        definedImages.push(response.pictures[0]);
+      }
+      if (response.pictures.length > 1) {
+        definedImages.push(response.pictures[1]);
+      }
+      if (response.pictures.length > 2) {
+        definedImages.push(response.pictures[2]);
+      }
+      if (response.pictures.length > 3) {
+        definedImages.push(response.pictures[3]);
+      }
+      if (response.pictures.length > 4) {
+        definedImages.push(response.pictures[4]);
+      }
+      setImages(definedImages);
+
       setLoading(false);
+
+      setDidGet(true);
     });
-  }, []);
+  };
 
   React.useEffect(() => {
     if (latitude && longitude) {
@@ -425,25 +433,36 @@ export default function CreateEventView() {
         lat: Number(latitude),
         lng: Number(longitude)
       });
-    } else {
-      setCenter({
-        lat: -34.61,
-        lng: -58.41
-      });
     }
   }, [latitude, longitude]);
-  
+
+  React.useEffect(() => {
+    getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_TYPES_URL}`, userToken)
+      .then((res) => {
+        if (res.error !== undefined) {
+          SweetAlert2.fire({
+            title: res.error,
+            icon: "error",
+          }).then();
+        } else {
+          setSelectableTypes(res.event_types);
+        }
+      })
+      .then(getEventData);
+  }, []);
+
   return (
     <main style={{ backgroundColor: "#eeeeee", minHeight: "100vh" }}>
       <Box style={createEventStyles.formContainer}>
         <Typography component="h1" style={createEventStyles.title}>
           Foto de Portada
         </Typography>
-
         <UploadAndDisplayImage
           size="100%"
           height="400px"
           setSelectedImage={setSelectedWallpaper}
+          oldImage={images[0]}
+          isEditing={true}
         />
         <Typography variant="caption" display="block" gutterBottom>
           Resolucion recomendada 1920x1080. Tamaño requerido 1MB mínimo, 10MB
@@ -476,7 +495,7 @@ export default function CreateEventView() {
               <InputTags
                 onTypesChange={handleTypesChange}
                 selectableTypes={selectableTypes}
-                selectedTypes={[]}
+                selectedTypes={types}
               >
                 {" "}
               </InputTags>
@@ -484,10 +503,10 @@ export default function CreateEventView() {
 
             <BlankLine />
 
-            {true ? (
+            { (address) ? (
               <GooglePlacesAutocomplete
                 selectProps={{
-                  placeholder: "Escriba una dirección",
+                  placeholder: address,
                   onChange: onPlaceChanged,
                 }}
                 autocompletionRequest={{
@@ -549,33 +568,32 @@ export default function CreateEventView() {
                   id="quantity"
                   label="Cantidad de entradas"
                   name="quantity"
+                  value={capacity}
                   onChange={handleCapacityChange}
                 />
               </Grid>
             </Grid>
 
             <BlankLine />
-
-            <BasicDatePicker setSelectedDate={handleSelectedDate}
-                             didGet={true}/>
-
+            <BasicDatePicker
+              setSelectedDate={handleSelectedDate}
+              oldDate={selectedDate}
+              didGet={didGet}
+            />
             <BlankLine />
-
-            <BasicTimePicker setSelectedTime={handleSelectedTime}
-                             didGet={true}/>
+            <BasicTimePicker
+              setSelectedTime={handleSelectedTime}
+              oldTime={selectedTime}
+              didGet={didGet}
+            />
           </Grid>
 
           <BlankLine />
         </Grid>
-
         <BlankLine />
-
         <BlankLine />
-
         <BlankLine />
-
         <BlankLine />
-
         <Typography component="h2" style={createEventStyles.subTitle}>
           Galería
         </Typography>
@@ -644,10 +662,10 @@ export default function CreateEventView() {
                     md={10}
                   >
                     <Typography sx={{ fontWeight: "bold" }}>
-                      P: {question[0]}
+                      P: {question.question}
                     </Typography>
                     <Typography sx={{ fontStyle: "italic" }}>
-                      R: {question[1]}
+                      R: {question.answer}
                     </Typography>
                   </Grid>
                   <IconButton
@@ -674,7 +692,8 @@ export default function CreateEventView() {
                   size="300px"
                   height="300px"
                   setSelectedImage={setSelectedFirstImage}
-                  scala={1}
+                  oldImage={images[1]}
+                  isEditing={images.length > 0}
                 />
               </Grid>
 
@@ -683,6 +702,8 @@ export default function CreateEventView() {
                   size="300px"
                   height="300px"
                   setSelectedImage={setSelectedSecondImage}
+                  oldImage={images[2]}
+                  isEditing={images.length > 2}
                 />
               </Grid>
 
@@ -691,6 +712,8 @@ export default function CreateEventView() {
                   size="300px"
                   height="300px"
                   setSelectedImage={setSelectedThirdImage}
+                  oldImage={images[3]}
+                  isEditing={images.length > 3}
                 />
               </Grid>
 
@@ -699,6 +722,8 @@ export default function CreateEventView() {
                   size="300px"
                   height="300px"
                   setSelectedImage={setSelectedFourthImage}
+                  oldImage={images[4]}
+                  isEditing={images.length > 4}
                 />
               </Grid>
             </Box>
