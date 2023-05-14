@@ -15,7 +15,7 @@ export default function DashboardDrawer() {
 
     const navigate = useNavigate();
 
-    const {logOut} = useMainContext();
+      const {logOut} = useMainContext();
 
     const handleLogOut = () => {
         logOut();
