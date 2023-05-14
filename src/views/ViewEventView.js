@@ -22,17 +22,13 @@ import {useNavigate, useSearchParams} from "react-router-dom";
 
 import FullCalendar from '@fullcalendar/react';
 import interactionPlugin from "@fullcalendar/interaction";
-import timeGridPlugin from '@fullcalendar/timegrid';
-
-import {tagStyle} from "../styles/events/EventStyles";
-import {ImageCarousel} from "../components/events/ImageCarousel";
-import {turnDateStringToToday} from "../services/helpers/DateService";
-
-import {TextField} from "@mui/material";
-
-import ReactHtmlParser from 'react-html-parser';
+import timeGridPlugin from "@fullcalendar/timegrid";
+import { tagStyle } from "../styles/events/EventStyles";
+import { ImageCarousel } from "../components/events/ImageCarousel";
+import { turnDateStringToToday } from "../services/helpers/DateService";
+import ReactHtmlParser from "react-html-parser";
 import { useMainContext } from "../services/contexts/MainContext";
-
+import { GoogleMap, MarkerF, useJsApiLoader } from "@react-google-maps/api";
 
 const ViewEventView = () => {
     const [name, setName] = React.useState("");
@@ -65,10 +61,14 @@ const ViewEventView = () => {
 
     const [userToken, setUserToken] = React.useState(getUserToken());
 
+    const [center, setCenter] = React.useState(null);
+
+    const [questions, setQuestions] = React.useState([]);
+
     const navigate = useNavigate();
 
-    const getEventData = async () => {
-        const eventId = searchParams.get(EVENT_ID_PARAM);
+  const getEventData = async () => {
+    const eventId = searchParams.get(EVENT_ID_PARAM);
 
         getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}?${EVENT_ID_PARAM}=${eventId}`,
           userToken)
@@ -99,6 +99,15 @@ const ViewEventView = () => {
                 setAddress(response.address);
 
                 setOrganizerName(response.organizerName);
+
+                setQuestions(response.faq);
+
+                if (response.latitude && response.longitude) {
+                    setCenter({
+                        lat: Number(response.latitude),
+                        lng: Number(response.longitude)
+                    });
+                }
 
                 const mappedSpaces = response.agenda.map((space) => {
                     return {
@@ -178,6 +187,23 @@ const ViewEventView = () => {
 
                 <BlankLine number={2}/>
 
+                {center ? (
+                  <GoogleMap
+                    mapContainerStyle={{
+                        width: "800px",
+                        height: "400px"
+                    }}
+
+                    center={center}
+
+                    zoom={17}
+                  >
+                      <MarkerF position={center} />
+                  </GoogleMap>
+                ) : <></>}
+
+                <BlankLine />
+
                 <div>{ReactHtmlParser(richDescription)}
                 </div>
 
@@ -205,6 +231,29 @@ const ViewEventView = () => {
 
                 <Typography variant="h5"><b>Organizador</b>: {organizerName}
                 </Typography>
+
+                <BlankLine/>
+
+                <Typography variant="h5">
+                    <b>FAQ</b>
+                </Typography>
+
+                <Box>
+                    {questions.map((question, i) => (
+                      <Box key={i}>
+                          {
+                              <Box>
+                                  <Typography sx={{ fontWeight: "bold" }}>
+                                      P: {question.question}
+                                  </Typography>
+                                  <Typography sx={{ fontStyle: "italic" }}>
+                                      R: {question.answer}
+                                  </Typography>
+                              </Box>
+                          }
+                      </Box>
+                    ))}
+                </Box>
 
                 <BlankLine/>
 

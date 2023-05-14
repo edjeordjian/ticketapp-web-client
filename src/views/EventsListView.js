@@ -6,6 +6,7 @@ import BasicBtn from "../components/BasicBtn";
 import DashboardDrawer from "../components/DashboardDrawer";
 import { useNavigate } from "react-router-dom";
 import {
+  ADD_TO_GROUP_PATH,
   EVENT_CREATE_PATH,
   EVENT_ID_PARAM,
   EVENT_SEARCH_NAME_URL,
@@ -21,23 +22,21 @@ const styles = {
   title: {
     fontSize: 24,
     fontWeight: "800",
-    marginBottom: "15px"
+    marginBottom: "15px",
   },
   eventsContainer: {
     display: "flex",
     flexDirection: "column",
-    marginTop: "25px"
+    marginTop: "25px",
   },
   btnContainer: {
-    display: "flex",
     width: "100%",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    marginBottom: "15px"
-  }
+    marginBottom: "15px",
+    flex: "1"
+  },
 };
 
-export default function EventsListView (props) {
+export default function EventsListView(props) {
   const navigate = useNavigate();
 
   const [loading, setLoading] = React.useState(true);
@@ -48,27 +47,32 @@ export default function EventsListView (props) {
   const [userToken, setUserToken] = React.useState(getUserToken());
 
   React.useEffect(() => {
-    getTo(`${process.env.REACT_APP_BACKEND_HOST}${EVENT_SEARCH_NAME_URL}?${OWNER_PARAM}=${userId}`,
-      userToken).then(
-      (res) => {
-        if (res.error !== undefined) {
-          SweetAlert2.fire({
-            title: res.error,
-            icon: "error"
-          }).then();
-        } else {
-          setSelectableEvents(res.events);
-        }
-        setLoading(false);
+    getTo(
+      `${process.env.REACT_APP_BACKEND_HOST}${EVENT_SEARCH_NAME_URL}?${OWNER_PARAM}=${userId}`,
+      userToken
+    ).then((res) => {
+      if (res.error !== undefined) {
+        SweetAlert2.fire({
+          title: res.error,
+          icon: "error",
+        }).then();
+      } else {
+        setSelectableEvents(res.events);
       }
-    );
+      setLoading(false);
+    });
   }, []);
 
   const displayProject = (source) => {
     return (
-      <a onClick={() => navigate(`${EVENT_VIEW_PATH}?${EVENT_ID_PARAM}=${source.id}`)}
-         key={source.id}>
-        <Typography variant="h3" display="block">{source.name}
+      <a
+        onClick={() =>
+          navigate(`${EVENT_VIEW_PATH}?${EVENT_ID_PARAM}=${source.id}`)
+        }
+        key={source.id}
+      >
+        <Typography variant="h3" display="block">
+          {source.name}
         </Typography>
 
         <img
@@ -79,7 +83,7 @@ export default function EventsListView (props) {
           src={source.pictures ? source.pictures[0] : ""}
         />
 
-        <BlankLine/>
+        <BlankLine />
       </a>
     );
   };
@@ -87,12 +91,34 @@ export default function EventsListView (props) {
   const onCreateEventClicked = (_) => {
     navigate(EVENT_CREATE_PATH);
   };
+
+  const navigateToAddGroupMemberScreen = () => {
+    navigate(ADD_TO_GROUP_PATH);
+  }
+
   return (
     <>
       <Box style={{ marginLeft: "250px", padding: "25px" }}>
-        <Box style={styles.btnContainer}>
-          <BasicBtn label={"Crear evento"} onClick={onCreateEventClicked} />
-        </Box>
+         <div style={{
+           display: "flex",
+           width: "100%",
+           alignItems: "center"
+         }}>
+          <Box style={styles.btnContainer}>
+            <BasicBtn label={"Crear evento"}
+                      onClick={onCreateEventClicked} />
+          </Box>
+
+          <Box style={{ marginLeft: "auto" }}>
+            <BasicBtn label={"Miembros de staff"}
+                      onClick={navigateToAddGroupMemberScreen} />
+          </Box>
+        </div>
+
+        <BlankLine/>
+
+        <BlankLine/>
+
         {loading ? (
           <p></p>
         ) : (
