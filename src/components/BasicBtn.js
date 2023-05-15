@@ -22,7 +22,10 @@ export default function BasicBtn(props) {
       type={props.type || "button"}
       variant="contained"
       onClick={props.onClick}
-      style={basicButtonSucessStyle.btnStyle}
+      style={{
+        ...basicButtonSucessStyle.btnStyle,
+        backgroundColor: props.color
+      }}
       disabled={props.disabled}
     >
       {props.label}
