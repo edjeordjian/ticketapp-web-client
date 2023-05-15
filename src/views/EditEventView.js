@@ -409,6 +409,8 @@ export default function EditEventView() {
       }).then((result) => {
         if (result.isConfirmed) {
           updateEvent(eventPayload);
+        } else {
+          setIsLoading(false);
         }
       })
     } else {
