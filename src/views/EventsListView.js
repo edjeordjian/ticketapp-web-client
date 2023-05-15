@@ -179,7 +179,7 @@ export default function EventsListView(props) {
               )}
             </div>
 
-            <BlankLine />
+            <BlankLine number={2} />
           </a>
         </div>
       );
@@ -189,8 +189,7 @@ export default function EventsListView(props) {
       event.preventDefault();
 
       const payload = {
-        eventId: id,
-        suspended: false,
+        eventId: id
       };
 
       postTo(
