@@ -191,27 +191,39 @@ export default function EventsListView(props) {
       const payload = {
         eventId: id
       };
-
-      postTo(
-        `${process.env.REACT_APP_BACKEND_HOST}${CANCEL_EVENT}`,
-        payload,
-        userToken
-      ).then((res) => {
-        if (res.error) {
-          SweetAlert2.fire({
-            icon: "error",
-            title: res.error,
-          }).then();
-        } else {
-          SweetAlert2.fire({
-            icon: "info",
-            title: EVENT_DELETED,
-          }).then((_res) => {
-            navigate(EVENTS_PATH);
-            window.location.reload(false);
+      SweetAlert2.fire({
+        title: 'Está por borrar un evento',
+        text: "Una vez borrado, no podrá recuperse el evento. ¿Desea borrar el evento?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Aceptar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          postTo(
+            `${process.env.REACT_APP_BACKEND_HOST}${CANCEL_EVENT}`,
+            payload,
+            userToken
+          ).then((res) => {
+            if (res.error) {
+              SweetAlert2.fire({
+                icon: "error",
+                title: res.error,
+              }).then();
+            } else {
+              SweetAlert2.fire({
+                icon: "info",
+                title: EVENT_DELETED,
+              }).then((_res) => {
+                navigate(EVENTS_PATH);
+                window.location.reload(false);
+              });
+            }
           });
         }
-      });
+      })
     };
 
     return (
