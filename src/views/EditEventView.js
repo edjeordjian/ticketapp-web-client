@@ -664,6 +664,9 @@ export default function EditEventView() {
                     step: 1,
                     pattern: "[0-9]*",
                   }}
+                  InputProps={{
+                    readOnly: true,
+                  }}
                   id="quantity"
                   label="Cantidad de entradas"
                   name="quantity"
