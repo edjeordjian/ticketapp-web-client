@@ -522,7 +522,20 @@ export default function EditEventView() {
         }
       });
     } else {
-      cancelEvent("Borrado");
+      SweetAlert2.fire({
+        title: 'Está por borrar un evento.',
+        text: `Esta acción es definitiva.¿Desea continuar?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Aceptar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          cancelEvent("Cancelado");
+        }
+      });
     }
   }
 
