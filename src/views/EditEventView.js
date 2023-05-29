@@ -5,17 +5,20 @@ import Typography from "@mui/material/Typography";
 import UploadAndDisplayImage from "../components/UploadAndDisplayImage";
 import BasicDatePicker from "../components/BasicDatePicker";
 import InputTags from "../components/TagField";
-import { getTo,patchTo } from "../services/helpers/RequestHelper";
+import { getTo, patchTo, postTo } from "../services/helpers/RequestHelper";
 import {
   EVENT_TYPES_URL,
   EVENT_URL,
   EVENTS_PATH,
-  EVENT_ID_PARAM,
+  EVENT_ID_PARAM, CANCEL_EVENT
 } from "../constants/URLs";
 import { IconButton } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import { turnDateStringToToday, turnDateToMomentFormat } from "../services/helpers/DateService";
+import {
+  turnDateStringToToday,
+  turnDateToMomentFormat,
+} from "../services/helpers/DateService";
 import { BlankLine } from "../components/BlankLine";
 import "react-quill/dist/quill.snow.css";
 import { getKeys } from "../services/helpers/JsonHelpers";
@@ -36,7 +39,9 @@ import {
   IMAGE_TOO_SMALL_ERR_LBL,
   UPLOAD_IMAGE_ERR_LBL,
   PUBLISHED_STATUS_LBL,
-  DRAFT_STATUS_LBL, GET_EVENT_ERROR, UPDATED_EVENT_LBL
+  DRAFT_STATUS_LBL,
+  GET_EVENT_ERROR,
+  UPDATED_EVENT_LBL, EVENT_DELETED
 } from "../constants/EventConstants";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { uploadFile } from "../services/helpers/CloudStorageService";
@@ -112,6 +117,10 @@ export default function EditEventView() {
 
   const [center, setCenter] = React.useState(null);
 
+  const [status, setStatus] = React.useState(null);
+
+  const [sendNotification, setSendNotification] = React.useState(false);
+
   const navigate = useNavigate();
 
   const handleDateSelect = (selectInfo) => {
@@ -119,12 +128,14 @@ export default function EditEventView() {
     setNewEventStart(selectInfo.startStr);
     setNewEventEnd(selectInfo.endStr);
   };
+
   const handleDialogClose = () => {
     setOpen(false);
     setNewEventTitle("");
     setNewEventStart(null);
     setNewEventEnd(null);
   };
+
   const handleAddEvent = () => {
     if (events.filter((event) => event.title === newEventTitle).length !== 0) {
       SweetAlert2.fire({
@@ -193,6 +204,8 @@ export default function EditEventView() {
   };
 
   const handleNameChange = (event) => {
+    setSendNotification(true);
+
     setName(event.target.value);
   };
 
@@ -209,15 +222,22 @@ export default function EditEventView() {
   };
 
   const handleSelectedDate = (value) => {
+    setSendNotification(true);
+
     setSelectedDate(value);
   };
 
   const handleSelectedTime = (value) => {
+    setSendNotification(true);
+
     setSelectedTime(value);
   };
 
   const onPlaceChanged = (placeSelected) => {
+    setSendNotification(true);
+
     setAddress(placeSelected.label);
+
     geocodeByPlaceId(placeSelected.value.place_id).then((results) => {
       setLatitude(results[0].geometry.location.lat());
       setLongitude(results[0].geometry.location.lng());
@@ -226,9 +246,13 @@ export default function EditEventView() {
 
   const handleAddQuestion = () => {
     if (questionField.value && answerField.value) {
-      setQuestions([...questions, {question: questionField.value, answer: answerField.value}]);
+      setQuestions([
+        ...questions,
+        { question: questionField.value, answer: answerField.value },
+      ]);
       questionField.value = "";
       answerField.value = "";
+      setSendNotification(true);
     } else {
       SweetAlert2.fire({
         title: "Es necesario completar pregunta y respuesta",
@@ -242,9 +266,34 @@ export default function EditEventView() {
   const handleRemoveQuestion = async (index) => {
     questions.splice(index, 1);
     setQuestions([...questions]);
+    setSendNotification(true);
   };
 
-  const handleSubmit = async (event, status) => {
+  const updateEvent = (eventPayload) => {
+    patchTo(
+      `${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}`,
+      eventPayload,
+      userToken
+    ).then((res) => {
+      setIsLoading(false);
+
+      if (res.error) {
+        SweetAlert2.fire({
+          icon: "error",
+          title: res.error,
+        }).then();
+      } else {
+        SweetAlert2.fire({
+          icon: "info",
+          title: UPDATED_EVENT_LBL,
+        }).then((res) => {
+          navigate(EVENTS_PATH);
+        });
+      }
+    });
+  };
+
+  const handleSubmit = async (event, status, publication = false) => {
     event.preventDefault();
     const typeIds = getKeys(types, selectableTypes);
     let wallpaper, image1, image2, image3, image4;
@@ -326,6 +375,8 @@ export default function EditEventView() {
 
     const userData = getUserData();
 
+    const notify = sendNotification && status === PUBLISHED_STATUS_LBL;
+
     const eventPayload = {
       id: searchParams.get(EVENT_ID_PARAM),
       ownerId: userData.id,
@@ -340,31 +391,31 @@ export default function EditEventView() {
       time: selectedTime !== null ? selectedTime.format("HH:mm") : "",
       pictures: pictures,
       agenda: events,
-      faq: questions.map(x => [x.question, x.answer]),
+      faq: questions.map((x) => [x.question, x.answer]),
       status: status,
+      sendNotification: notify
     };
 
-    patchTo(
-      `${process.env.REACT_APP_BACKEND_HOST}${EVENT_URL}`,
-      eventPayload,
-      userToken
-    ).then((res) => {
-      setIsLoading(false);
-
-      if (res.error) {
-        SweetAlert2.fire({
-          icon: "error",
-          title: res.error,
-        }).then();
-      } else {
-        SweetAlert2.fire({
-          icon: "info",
-          title: UPDATED_EVENT_LBL,
-        }).then((res) => {
-          navigate(EVENTS_PATH);
-        });
-      }
-    });
+    if (notify) {
+      SweetAlert2.fire({
+        title: 'Se notificará a los usuarios inscriptos',
+        text: "Si se guardan los cambios realizados, se le avisará a los asistentes de los cambios en el evento.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Aceptar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          updateEvent(eventPayload);
+        } else {
+          setIsLoading(false);
+        }
+      })
+    } else {
+      updateEvent(eventPayload);
+    }
   };
 
   const getEventData = async () => {
@@ -386,14 +437,14 @@ export default function EditEventView() {
       setRichDescription(response.description);
       setCapacity(response.capacity);
       setTypes(response.types_names);
-      setSelectedDate( moment( turnDateToMomentFormat(response.date) ) );
-      setSelectedTime( dayjs(response.time, `H:mm`) );
+      setSelectedDate(moment(turnDateToMomentFormat(response.date)));
+      setSelectedTime(dayjs(response.time, `H:mm`));
       setAddress(response.address);
       setOrganizerName(response.organizerName);
       setQuestions(response.faq);
       setLatitude(response.latitude);
       setLongitude(response.longitude);
-
+      setStatus(response.state.name);
       const mappedSpaces = response.agenda.map((space) => {
         return {
           title: space.title,
@@ -427,11 +478,72 @@ export default function EditEventView() {
     });
   };
 
+  const cancelEvent = (message) => {
+    const payload = {
+      eventId: searchParams.get(EVENT_ID_PARAM)
+    };
+
+    postTo(
+      `${process.env.REACT_APP_BACKEND_HOST}${CANCEL_EVENT}`,
+      payload,
+      userToken
+    ).then((res) => {
+      if (res.error) {
+        SweetAlert2.fire({
+          icon: "error",
+          title: res.error,
+        }).then();
+      } else {
+        SweetAlert2.fire({
+          icon: "info",
+          title: message,
+        }).then((_res) => {
+          navigate(EVENTS_PATH);
+          window.location.reload(false);
+        });
+      }
+    });
+  }
+
+  const handleCancel = async () => {
+    if (status === PUBLISHED_STATUS_LBL) {
+      SweetAlert2.fire({
+        title: 'Se notificará a los usuarios inscriptos',
+        text: `Si se cancela el evento, se le avisará a los asistentes.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Aceptar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          cancelEvent("Cancelado");
+        }
+      });
+    } else {
+      SweetAlert2.fire({
+        title: 'Está por borrar un evento.',
+        text: `Esta acción es definitiva.¿Desea continuar?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Aceptar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          cancelEvent("Cancelado");
+        }
+      });
+    }
+  }
+
   React.useEffect(() => {
     if (latitude && longitude) {
       setCenter({
         lat: Number(latitude),
-        lng: Number(longitude)
+        lng: Number(longitude),
       });
     }
   }, [latitude, longitude]);
@@ -503,7 +615,7 @@ export default function EditEventView() {
 
             <BlankLine />
 
-            { (address) ? (
+            {address ? (
               <GooglePlacesAutocomplete
                 selectProps={{
                   placeholder: address,
@@ -564,6 +676,9 @@ export default function EditEventView() {
                     min: 0,
                     step: 1,
                     pattern: "[0-9]*",
+                  }}
+                  InputProps={{
+                    readOnly: true,
                   }}
                   id="quantity"
                   label="Cantidad de entradas"
@@ -789,20 +904,42 @@ export default function EditEventView() {
           <BasicBtn
             type={"button"}
             variant="contained"
-            onClick={(event) => handleSubmit(event, PUBLISHED_STATUS_LBL)}
+            onClick={(event) => handleSubmit(event, PUBLISHED_STATUS_LBL, status !== PUBLISHED_STATUS_LBL)}
             loading={isLoading.toString()}
-            label={isLoading ? "Cargando..." : "Crear evento"}
+            label={isLoading
+              ? "Cargando..."
+              : (status === PUBLISHED_STATUS_LBL ? "Guardar" : "Publicar")
+            }
             disabled={isLoading}
             color="green"
           />
-          <BasicBtn
-            type={"button"}
-            variant="contained"
-            onClick={(event) => handleSubmit(event, DRAFT_STATUS_LBL)}
-            loading={isLoading.toString()}
-            label={isLoading ? "Cargando..." : "Guardar"}
-            disabled={isLoading}
-          />
+
+          {status === DRAFT_STATUS_LBL && (
+            <BasicBtn
+              type={"button"}
+              variant="contained"
+              onClick={(event) => handleSubmit(event, DRAFT_STATUS_LBL)}
+              loading={isLoading.toString()}
+              label={isLoading ? "Cargando..." : "Guardar borrador"}
+              disabled={isLoading}
+            />
+          )}
+
+          {(status === PUBLISHED_STATUS_LBL || status === DRAFT_STATUS_LBL) && (
+            <BasicBtn
+              type={"button"}
+              variant="contained"
+              onClick={(event) => handleCancel()}
+              loading={isLoading.toString()}
+              label={isLoading
+                ? "Cargando..."
+                : (status === PUBLISHED_STATUS_LBL
+                  ? "Cancelar"
+                  : "Borrar")}
+              disabled={isLoading}
+              color="red"
+            />
+          )}
         </Grid>
       </Box>
     </main>

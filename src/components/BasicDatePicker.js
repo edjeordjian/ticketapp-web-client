@@ -7,7 +7,7 @@ import { turnDateToMomentFormat } from "../services/helpers/DateService";
 
 export default function BasicDatePicker(props) {
   moment.locale("es");
-
+  let today = moment()
   let oldDateFormated;
 
   const handleDateChange = (givenDate) => {
@@ -27,7 +27,8 @@ export default function BasicDatePicker(props) {
                           locale={moment.locale()}>
       <DatePicker label="Elija una fecha"
                   onChange={handleDateChange}
-                  value={oldDateFormated} />
+                  value={oldDateFormated}
+                  minDate={today} />
     </LocalizationProvider>
   );
 }
