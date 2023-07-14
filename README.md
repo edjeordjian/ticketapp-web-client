@@ -1,3 +1,7 @@
+- Las dependencias se instalan con npm i
+
+- Si se está clonando el proyecto, recordar no hacer npm i directamente: ponerle ^ a las versiones de cada cosa antes para que instale versiones que no tengan vulnerabilidades. Luego quitarlo.
+
 ### General
 - No usemos alert, usemos Sweet Alert:
 ```  
